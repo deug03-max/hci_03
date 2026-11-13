@@ -3,299 +3,124 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>수덕자리 좌석 배치도 편집기</title>
+<title>수덕전 좌석 배치도 만들기</title>
 <style>
-  :root{--bg:#f5f5f3;--ink:#222;--muted:#555;--line:#cfcfc8;--card:#fff;--accent:#0369a1}
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;line-height:1.5}
-  header{padding:14px 20px;border-bottom:2px solid var(--ink);background:var(--card)}
-  header h1{margin:0;font-size:18px}
-  header p{margin:2px 0 0;font-size:13px;color:var(--muted)}
-  .layout{display:flex;flex-wrap:wrap;gap:16px;padding:16px 20px;align-items:flex-start}
-  .side{flex:0 0 280px;display:flex;flex-direction:column;gap:14px}
-  .stage{flex:1 1 520px;min-width:0}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px}
-  .card h2{margin:0 0 8px;font-size:14px}
-  .row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-  button,select,input{font:inherit}
-  button{min-height:36px;padding:4px 10px;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);border-radius:6px;cursor:pointer}
+  body{margin:0;background:#f5f5f3;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;line-height:1.5}
+  header{padding:12px 16px;background:#fff;border-bottom:2px solid #222;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  header h1{margin:0 12px 0 0;font-size:17px}
+  button,input{font:inherit}
+  button{min-height:36px;padding:2px 12px;border:1.5px solid #222;background:#fff;border-radius:6px;cursor:pointer}
   button:hover{background:#eee}
-  button.primary{background:var(--ink);color:#fff}
-  button.primary:hover{background:#000}
-  input[type=number],input[type=text]{width:80px;min-height:34px;padding:2px 6px;border:1.5px solid var(--line);border-radius:6px}
-  input[type=text]{width:100%}
-  label{font-size:13px;color:var(--muted)}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
-  .hint{font-size:12px;color:var(--muted);margin:6px 0 0}
-  svg{width:100%;height:auto;background:#fff;border:2px solid var(--ink);touch-action:none;display:block}
-  .item{cursor:move}
-  .item.sel rect.body{stroke:var(--accent);stroke-width:3}
-  .item text{pointer-events:none;font-size:12px;text-anchor:middle;dominant-baseline:central;fill:#222}
+  button.main{background:#222;color:#fff}
+  label{font-size:13px;color:#444}
+  input[type=number]{width:70px;min-height:34px;border:1.5px solid #bbb;border-radius:6px;padding:2px 6px}
+  .bar{padding:8px 16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:#fff;border-bottom:1px solid #ccc}
+  .sep{width:1px;height:24px;background:#ccc}
+  #info{font-size:13px;color:#444;margin-left:auto}
+  main{padding:12px 16px}
+  svg{width:100%;height:auto;background:#fff;border:2px solid #222;display:block;touch-action:none}
+  .sel .shape{stroke:#0369a1;stroke-width:3}
+  g.it{cursor:move}
+  .help{font-size:12px;color:#555;margin:8px 0 0}
 </style>
 </head>
 <body>
-<header>
-  <h1>수덕자리 좌석 배치도 편집기</h1>
-  <p>수덕전 2층 평면을 그려서 테이블 수와 좌석 수를 정리합니다. 작업 내용은 이 브라우저에 자동 저장됩니다.</p>
+<header><h1>수덕전 좌석 배치도 만들기</h1>
+  <button type="button" class="main" id="addT">테이블 추가</button>
+  <button type="button" class="main" id="addC">의자 추가</button>
 </header>
-
-<div class="layout">
-  <div class="side">
-    <div class="card">
-      <h2>1. 바닥 크기와 참고 사진</h2>
-      <div class="row">
-        <label>가로 <input type="number" id="fw" min="300" max="3000" step="50"></label>
-        <label>세로 <input type="number" id="fh" min="300" max="3000" step="50"></label>
-      </div>
-      <div class="row" style="margin-top:8px">
-        <input type="file" id="bgfile" accept="image/*" aria-label="참고 사진 선택">
-      </div>
-      <div class="row" style="margin-top:8px">
-        <label>사진 투명도 <input type="range" id="bgop" min="0" max="100" value="40"></label>
-        <button type="button" id="bgclear">사진 지우기</button>
-      </div>
-      <p class="hint">배치도 사진을 올리고 그 위에 테이블을 맞춰 놓으면 편합니다. 사진은 저장되지 않고 이 화면에서만 보입니다.</p>
-    </div>
-
-    <div class="card">
-      <h2>2. 테이블 추가</h2>
-      <div class="row" id="addbtns"></div>
-      <p class="hint">추가한 뒤 끌어서 옮깁니다. 선택한 항목은 회전(R), 복제(D), 삭제(Delete) 키나 아래 버튼으로 바꿉니다.</p>
-    </div>
-
-    <div class="card">
-      <h2>3. 선택한 항목</h2>
-      <div id="selpanel" class="hint">선택된 항목이 없습니다.</div>
-      <div class="row" id="selbtns" style="margin-top:8px;display:none">
-        <button type="button" id="rot">회전</button>
-        <button type="button" id="dup">복제</button>
-        <button type="button" id="del">삭제</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>4. 집계</h2>
-      <table id="sum"></table>
-    </div>
-
-    <div class="card">
-      <h2>5. 저장과 불러오기</h2>
-      <div class="row">
-        <button type="button" class="primary" id="exjson">JSON 저장</button>
-        <button type="button" id="expng">PNG 저장</button>
-        <button type="button" id="imjson">JSON 열기</button>
-        <button type="button" id="reset">전체 지우기</button>
-        <input type="file" id="jsonfile" accept="application/json" hidden>
-      </div>
-    </div>
-  </div>
-
-  <div class="stage">
-    <svg id="svg" role="img" aria-label="좌석 배치도 작업 영역"></svg>
-  </div>
+<div class="bar">
+  <button type="button" id="rot">회전 (R)</button>
+  <button type="button" id="dup">복제 (D)</button>
+  <button type="button" id="del">삭제 (Delete)</button>
+  <span class="sep"></span>
+  <label>가로 <input type="number" id="tw" min="20" max="400" step="10"></label>
+  <label>세로 <input type="number" id="th" min="20" max="400" step="10"></label>
+  <span style="font-size:12px;color:#555">선택한 테이블 크기</span>
+  <span id="info"></span>
 </div>
-
+<div class="bar">
+  <label>바닥 가로 <input type="number" id="fw" min="300" step="50"></label>
+  <label>세로 <input type="number" id="fh" min="300" step="50"></label>
+  <span class="sep"></span>
+  <label>참고 사진 <input type="file" id="bg" accept="image/*"></label>
+  <label>투명도 <input type="range" id="op" min="0" max="100" value="40"></label>
+  <span class="sep"></span>
+  <button type="button" id="json">JSON 저장</button>
+  <button type="button" id="png">PNG 저장</button>
+  <button type="button" id="clear">모두 지우기</button>
+</div>
+<main>
+  <svg id="svg" role="img" aria-label="좌석 배치도 작업 영역"></svg>
+  <p class="help">추가한 테이블과 의자를 끌어서 옮깁니다. 칸 간격은 10입니다. 자동 저장되며, 참고 사진은 저장되지 않습니다.</p>
+</main>
 <script>
-const TYPES = {
-  t1:{name:"1인석",w:40,h:40,seats:1,prefix:"A",fill:"#fff"},
-  t2:{name:"2인석",w:60,h:40,seats:2,prefix:"B",fill:"#fff"},
-  t4:{name:"4인석",w:80,h:60,seats:4,prefix:"C",fill:"#fff"},
-  t6:{name:"6인석",w:120,h:60,seats:6,prefix:"D",fill:"#fff"},
-  floor:{name:"좌식 테이블",w:90,h:60,seats:4,prefix:"F",fill:"#f1ece1"},
-  door:{name:"입구",w:70,h:14,seats:0,prefix:"입구",fill:"#bbb"},
-  counter:{name:"주문대",w:140,h:30,seats:0,prefix:"주문",fill:"#ddd"},
-  bin:{name:"쓰레기통",w:26,h:26,seats:0,prefix:"쓰",fill:"#ddd"}
-};
-const KEY = "sudeok-seat-layout-v1";
-const NS = "http://www.w3.org/2000/svg";
-let state = { fw:1000, fh:600, items:[] };
-let sel = null, bgUrl = null, bgOp = 0.4, drag = null;
-const svg = document.getElementById("svg");
+const NS="http://www.w3.org/2000/svg", KEY="sudeok-seat-simple-v1";
+let S={fw:1000,fh:600,items:[]}, sel=null, drag=null, bgUrl=null, bgOp=.4;
+const svg=document.getElementById("svg");
+try{const o=JSON.parse(localStorage.getItem(KEY)||"null"); if(o&&o.items) S=o;}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const cur=()=>S.items.find(i=>i.id===sel)||null;
+const dims=i=>i.kind==="table"?[i.w,i.h]:[26,26];
+const snap=v=>Math.round(v/10)*10;
 
-function load(){
-  try{ const s = localStorage.getItem(KEY); if(s){ const o = JSON.parse(s); if(o && Array.isArray(o.items)) state = o; } }catch(e){}
+function add(kind){
+  const it=kind==="table"?{kind,w:80,h:60,x:0,y:0,rot:0}:{kind,x:0,y:0,rot:0};
+  it.id="i"+Date.now()+Math.floor(Math.random()*999);
+  it.x=snap(S.fw/2-20); it.y=snap(S.fh/2-20);
+  S.items.push(it); sel=it.id; save(); render();
 }
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
-
-function nextLabel(type){
-  const t = TYPES[type];
-  if(t.seats===0) return t.prefix;
-  const n = state.items.filter(i=>i.type===type).length + 1;
-  return t.prefix + n;
-}
-function addItem(type){
-  const t = TYPES[type];
-  const it = { id:"i"+Date.now()+Math.floor(Math.random()*1000), type, label:nextLabel(type),
-    x:Math.round((state.fw/2 - t.w/2)/10)*10, y:Math.round((state.fh/2 - t.h/2)/10)*10, rot:0 };
-  state.items.push(it); sel = it.id; save(); render();
-}
-
-function seatDots(t){
-  const dots = [], n = t.seats; if(!n) return dots;
-  const top = Math.ceil(n/2), bot = n - top;
-  for(let i=0;i<top;i++) dots.push([ -t.w/2 + t.w*(i+0.5)/top, -t.h/2 - 7 ]);
-  for(let i=0;i<bot;i++) dots.push([ -t.w/2 + t.w*(i+0.5)/bot, t.h/2 + 7 ]);
-  return dots;
-}
+function mk(tag,a){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);return e;}
 
 function render(){
-  svg.setAttribute("viewBox","0 0 "+state.fw+" "+state.fh);
-  svg.innerHTML = "";
-  if(bgUrl){
-    const im = document.createElementNS(NS,"image");
-    im.setAttribute("href",bgUrl); im.setAttribute("x",0); im.setAttribute("y",0);
-    im.setAttribute("width",state.fw); im.setAttribute("height",state.fh);
-    im.setAttribute("preserveAspectRatio","xMidYMid meet"); im.setAttribute("opacity",bgOp);
-    svg.appendChild(im);
-  }
-  const grid = document.createElementNS(NS,"path");
-  let d = "";
-  for(let x=0;x<=state.fw;x+=50) d += "M"+x+" 0V"+state.fh;
-  for(let y=0;y<=state.fh;y+=50) d += "M0 "+y+"H"+state.fw;
-  grid.setAttribute("d",d); grid.setAttribute("stroke","#e4e4de"); grid.setAttribute("stroke-width","1");
-  svg.appendChild(grid);
-
-  state.items.forEach(it=>{
-    const t = TYPES[it.type];
-    const g = document.createElementNS(NS,"g");
-    g.setAttribute("class","item"+(it.id===sel?" sel":""));
-    g.dataset.id = it.id;
-    g.setAttribute("transform","translate("+(it.x+t.w/2)+" "+(it.y+t.h/2)+") rotate("+it.rot+")");
-    const r = document.createElementNS(NS,"rect");
-    r.setAttribute("class","body"); r.setAttribute("x",-t.w/2); r.setAttribute("y",-t.h/2);
-    r.setAttribute("width",t.w); r.setAttribute("height",t.h); r.setAttribute("rx",4);
-    r.setAttribute("fill",t.fill); r.setAttribute("stroke","#222"); r.setAttribute("stroke-width","2");
-    g.appendChild(r);
-    seatDots(t).forEach(p=>{
-      const c = document.createElementNS(NS,"circle");
-      c.setAttribute("cx",p[0]); c.setAttribute("cy",p[1]); c.setAttribute("r",5);
-      c.setAttribute("fill","#888"); g.appendChild(c);
-    });
-    const tx = document.createElementNS(NS,"text");
-    tx.textContent = it.label;
-    tx.setAttribute("transform","rotate("+(-it.rot)+")");
-    g.appendChild(tx);
-    g.addEventListener("pointerdown", e=>startDrag(e,it));
+  svg.setAttribute("viewBox","0 0 "+S.fw+" "+S.fh); svg.innerHTML="";
+  if(bgUrl) svg.appendChild(mk("image",{href:bgUrl,x:0,y:0,width:S.fw,height:S.fh,opacity:bgOp,preserveAspectRatio:"xMidYMid meet"}));
+  let d=""; for(let x=0;x<=S.fw;x+=50)d+="M"+x+" 0V"+S.fh; for(let y=0;y<=S.fh;y+=50)d+="M0 "+y+"H"+S.fw;
+  svg.appendChild(mk("path",{d,stroke:"#e6e6e0","stroke-width":1}));
+  S.items.forEach(it=>{
+    const [w,h]=dims(it);
+    const g=mk("g",{class:"it"+(it.id===sel?" sel":""),transform:"translate("+(it.x+w/2)+" "+(it.y+h/2)+") rotate("+it.rot+")"});
+    g.appendChild(it.kind==="table"
+      ? mk("rect",{class:"shape",x:-w/2,y:-h/2,width:w,height:h,rx:4,fill:"#fff",stroke:"#222","stroke-width":2})
+      : mk("circle",{class:"shape",r:13,fill:"#9a9a92",stroke:"#222","stroke-width":2}));
+    g.addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();sel=it.id;const p=pt(e);drag={id:it.id,dx:p.x-it.x,dy:p.y-it.y};svg.setPointerCapture(e.pointerId);render();});
     svg.appendChild(g);
   });
-  panel(); summary();
+  const t=S.items.filter(i=>i.kind==="table").length, c=S.items.length-t;
+  document.getElementById("info").textContent="테이블 "+t+"개, 의자 "+c+"개";
+  const it=cur(), isT=it&&it.kind==="table";
+  document.getElementById("tw").disabled=document.getElementById("th").disabled=!isT;
+  document.getElementById("tw").value=isT?it.w:""; document.getElementById("th").value=isT?it.h:"";
 }
+function pt(e){const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse());}
+svg.addEventListener("pointermove",e=>{if(!drag)return;const it=S.items.find(i=>i.id===drag.id);if(!it)return;const p=pt(e);
+  it.x=Math.max(0,Math.min(S.fw-20,snap(p.x-drag.dx)));it.y=Math.max(0,Math.min(S.fh-20,snap(p.y-drag.dy)));render();});
+svg.addEventListener("pointerup",()=>{if(drag){drag=null;save();}});
+svg.addEventListener("pointerdown",e=>{if(e.target===svg||e.target.tagName==="path"||e.target.tagName==="image"){sel=null;render();}});
 
-function pt(e){
-  const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY;
-  return p.matrixTransform(svg.getScreenCTM().inverse());
-}
-function startDrag(e,it){
-  e.preventDefault(); e.stopPropagation();
-  sel = it.id; const p = pt(e);
-  drag = { id:it.id, dx:p.x - it.x, dy:p.y - it.y };
-  svg.setPointerCapture(e.pointerId); render();
-}
-svg.addEventListener("pointermove", e=>{
-  if(!drag) return;
-  const it = state.items.find(i=>i.id===drag.id); if(!it) return;
-  const p = pt(e);
-  it.x = Math.max(0, Math.min(state.fw-20, Math.round((p.x-drag.dx)/10)*10));
-  it.y = Math.max(0, Math.min(state.fh-20, Math.round((p.y-drag.dy)/10)*10));
-  render();
-});
-svg.addEventListener("pointerup", ()=>{ if(drag){ drag=null; save(); } });
-svg.addEventListener("pointerdown", e=>{ if(e.target===svg || e.target.tagName==="path" || e.target.tagName==="image"){ sel=null; render(); } });
-
-function selected(){ return state.items.find(i=>i.id===sel) || null; }
-function panel(){
-  const p = document.getElementById("selpanel"), b = document.getElementById("selbtns");
-  const it = selected();
-  if(!it){ p.className="hint"; p.textContent="선택된 항목이 없습니다."; b.style.display="none"; return; }
-  b.style.display="flex"; p.className="";
-  const t = TYPES[it.type];
-  p.innerHTML = "<div class='hint'>"+t.name+(t.seats?", 좌석 "+t.seats+"개":"")+"</div><label>이름<input type='text' id='lbl'></label>";
-  const inp = document.getElementById("lbl"); inp.value = it.label;
-  inp.addEventListener("input", ()=>{ it.label = inp.value; save(); renderKeepFocus(); });
-}
-function renderKeepFocus(){
-  const keep = selected();
-  svg.querySelectorAll("g.item").forEach(g=>{ if(keep && g.dataset.id===keep.id) g.querySelector("text").textContent = keep.label; });
-}
-function summary(){
-  const tb = document.getElementById("sum"); tb.innerHTML = "<tr><th>종류</th><th>개수</th><th>좌석</th></tr>";
-  let tt=0, ts=0;
-  Object.keys(TYPES).forEach(k=>{
-    const n = state.items.filter(i=>i.type===k).length; if(!n) return;
-    const s = n*TYPES[k].seats; if(TYPES[k].seats){ tt+=n; ts+=s; }
-    tb.innerHTML += "<tr><td>"+TYPES[k].name+"</td><td>"+n+"</td><td>"+(TYPES[k].seats?s:"-")+"</td></tr>";
-  });
-  tb.innerHTML += "<tr><th>합계(좌석 있는 테이블)</th><th>"+tt+"</th><th>"+ts+"</th></tr>";
-}
-
-document.getElementById("rot").onclick = ()=>{ const it=selected(); if(it){ it.rot=(it.rot+90)%360; save(); render(); } };
-document.getElementById("del").onclick = ()=>{ if(sel){ state.items=state.items.filter(i=>i.id!==sel); sel=null; save(); render(); } };
-document.getElementById("dup").onclick = ()=>{
-  const it=selected(); if(!it) return;
-  const c = {...it, id:"i"+Date.now(), x:it.x+20, y:it.y+20, label:nextLabel(it.type)};
-  state.items.push(c); sel=c.id; save(); render();
-};
-document.addEventListener("keydown", e=>{
-  if(e.target.tagName==="INPUT") return;
-  if(e.key==="Delete"||e.key==="Backspace") document.getElementById("del").click();
-  if(e.key==="r"||e.key==="R") document.getElementById("rot").click();
-  if(e.key==="d"||e.key==="D") document.getElementById("dup").click();
-});
-
-const addbtns = document.getElementById("addbtns");
-Object.keys(TYPES).forEach(k=>{
-  const b = document.createElement("button"); b.type="button";
-  b.textContent = TYPES[k].name + " 추가";
-  b.onclick = ()=>addItem(k); addbtns.appendChild(b);
-});
-
-const fw=document.getElementById("fw"), fh=document.getElementById("fh");
-function syncSize(){ fw.value=state.fw; fh.value=state.fh; }
-fw.onchange = ()=>{ state.fw=Math.max(300,+fw.value||1000); save(); render(); };
-fh.onchange = ()=>{ state.fh=Math.max(300,+fh.value||600); save(); render(); };
-
-document.getElementById("bgfile").onchange = e=>{
-  const f = e.target.files[0]; if(!f) return;
-  if(bgUrl) URL.revokeObjectURL(bgUrl); bgUrl = URL.createObjectURL(f); render();
-};
-document.getElementById("bgop").oninput = e=>{ bgOp = e.target.value/100; render(); };
-document.getElementById("bgclear").onclick = ()=>{ if(bgUrl) URL.revokeObjectURL(bgUrl); bgUrl=null; document.getElementById("bgfile").value=""; render(); };
-
-function download(name, blob){
-  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
-  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-}
-document.getElementById("exjson").onclick = ()=>{
-  const out = { floor:{width:state.fw,height:state.fh}, tables:state.items.map(i=>({id:i.id,type:i.type,typeName:TYPES[i.type].name,seats:TYPES[i.type].seats,label:i.label,x:i.x,y:i.y,rotation:i.rot})) };
-  download("suduk-seat-layout.json", new Blob([JSON.stringify(out,null,2)],{type:"application/json"}));
-};
-document.getElementById("imjson").onclick = ()=>document.getElementById("jsonfile").click();
-document.getElementById("jsonfile").onchange = e=>{
-  const f = e.target.files[0]; if(!f) return;
-  f.text().then(s=>{
-    const o = JSON.parse(s);
-    if(!o.tables || !o.floor) throw new Error("형식이 맞지 않습니다.");
-    state = { fw:o.floor.width, fh:o.floor.height, items:o.tables.map(t=>({id:t.id||"i"+Math.random(),type:t.type,label:t.label,x:t.x,y:t.y,rot:t.rotation||0})).filter(i=>TYPES[i.type]) };
-    sel=null; save(); syncSize(); render();
-  }).catch(err=>alert("불러오지 못했습니다: "+err.message));
-};
-document.getElementById("expng").onclick = ()=>{
-  sel = null; render();
-  const xml = new XMLSerializer().serializeToString(svg).replace("<svg ","<svg xmlns='"+NS+"' ");
-  const img = new Image();
-  img.onload = ()=>{
-    const c = document.createElement("canvas"); c.width = state.fw; c.height = state.fh;
-    const x = c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,c.width,c.height); x.drawImage(img,0,0,c.width,c.height);
-    c.toBlob(b=>download("suduk-seat-layout.png",b));
-  };
-  img.src = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(xml);
-};
-document.getElementById("reset").onclick = ()=>{
-  if(confirm("배치한 모든 항목을 지울까요?")){ state.items=[]; sel=null; save(); render(); }
-};
-
-load(); syncSize(); render();
+const $=id=>document.getElementById(id);
+$("addT").onclick=()=>add("table"); $("addC").onclick=()=>add("chair");
+$("rot").onclick=()=>{const i=cur();if(i){i.rot=(i.rot+90)%360;save();render();}};
+$("del").onclick=()=>{if(sel){S.items=S.items.filter(i=>i.id!==sel);sel=null;save();render();}};
+$("dup").onclick=()=>{const i=cur();if(!i)return;const c={...i,id:"i"+Date.now(),x:i.x+20,y:i.y+20};S.items.push(c);sel=c.id;save();render();};
+$("tw").onchange=()=>{const i=cur();if(i&&i.kind==="table"){i.w=Math.max(20,+$("tw").value||80);save();render();}};
+$("th").onchange=()=>{const i=cur();if(i&&i.kind==="table"){i.h=Math.max(20,+$("th").value||60);save();render();}};
+$("fw").value=S.fw;$("fh").value=S.fh;
+$("fw").onchange=()=>{S.fw=Math.max(300,+$("fw").value||1000);save();render();};
+$("fh").onchange=()=>{S.fh=Math.max(300,+$("fh").value||600);save();render();};
+$("bg").onchange=e=>{const f=e.target.files[0];if(!f)return;if(bgUrl)URL.revokeObjectURL(bgUrl);bgUrl=URL.createObjectURL(f);render();};
+$("op").oninput=e=>{bgOp=e.target.value/100;render();};
+$("clear").onclick=()=>{if(confirm("배치한 항목을 모두 지울까요?")){S.items=[];sel=null;save();render();}};
+document.addEventListener("keydown",e=>{if(e.target.tagName==="INPUT")return;
+  if(e.key==="Delete"||e.key==="Backspace")$("del").click(); if(e.key==="r"||e.key==="R")$("rot").click(); if(e.key==="d"||e.key==="D")$("dup").click();});
+function dl(name,blob){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();}
+$("json").onclick=()=>{const t=S.items.filter(i=>i.kind==="table"),c=S.items.filter(i=>i.kind==="chair");
+  dl("seat-layout.json",new Blob([JSON.stringify({floor:{width:S.fw,height:S.fh},tableCount:t.length,chairCount:c.length,tables:t,chairs:c},null,2)],{type:"application/json"}));};
+$("png").onclick=()=>{sel=null;render();const x=new XMLSerializer().serializeToString(svg).replace("<svg ","<svg xmlns='"+NS+"' ");
+  const im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=S.fw;c.height=S.fh;const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);c.toBlob(b=>dl("seat-layout.png",b));};
+  im.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(x);};
+render();
 </script>
 </body>
 </html>
