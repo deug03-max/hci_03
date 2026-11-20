@@ -37,7 +37,7 @@
 .chip b{color:var(--ok)}
 .legend{display:flex;gap:14px;font-size:12px;color:var(--sub)}.legend span{display:flex;align-items:center;gap:5px}
 .sw{width:14px;height:14px;border-radius:4px;display:inline-block}
-.t{display:flex;align-items:center;justify-content:center;width:100%;padding:0;margin:0;border-radius:6px;font:inherit;font-size:10px;font-weight:700;cursor:pointer;transition:transform .08s}
+.t{display:flex;align-items:center;justify-content:center;width:100%;padding:0;margin:0;border-radius:6px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:transform .08s}
 .t:active{transform:scale(.94)}
 .t.free{background:var(--ok-bg);border:1.5px solid var(--ok);color:#14532d}
 .t.busy{background:var(--busy);border:1.5px solid var(--busy);color:#fff}
@@ -135,24 +135,24 @@
       <span><i class="sw" style="background:var(--rsv-bg);border:1.5px dashed var(--accent-t)"></i>예약됨</span>
     </div>
     <div class="card" style="padding:10px;display:flex;flex-direction:column;gap:6px;background:var(--bg2)">
-      <span class="small" style="text-align:center;font-size:11px">앞쪽</span>
+      <span class="small" style="text-align:center">앞쪽</span>
       <div style="display:flex;gap:8px">
-        <div style="width:28px;display:flex;flex-direction:column;gap:4px">
-          <span class="small" style="text-align:center;font-size:10px;line-height:1.2">창가</span>
-          <div id="gA" style="display:flex;flex-direction:column;gap:2px"></div>
+        <div style="width:44px;display:flex;flex-direction:column;gap:4px">
+          <span class="small" style="text-align:center;line-height:1.2">창가</span>
+          <div id="gA" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px"></div>
         </div>
         <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
-          <span class="small" style="font-size:11px">4인석 21</span>
+          <span class="small">4인석 21</span>
           <div id="gC" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px"></div>
-          <span class="small" style="font-size:11px">2인석 12</span>
+          <span class="small">2인석 12</span>
           <div id="gB" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;width:60%;align-self:center"></div>
           <div style="display:flex;gap:8px">
-            <div style="width:28%;display:flex;flex-direction:column;gap:4px"><span class="small" style="font-size:11px">좌식 2</span><div id="gF" style="display:flex;flex-direction:column;gap:4px"></div></div>
-            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px"><span class="small" style="font-size:11px">3인석 7</span><div id="gD" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px"></div></div>
+            <div style="width:28%;display:flex;flex-direction:column;gap:4px"><span class="small">좌식 2</span><div id="gF" style="display:flex;flex-direction:column;gap:4px"></div></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px"><span class="small">3인석 7</span><div id="gD" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px"></div></div>
           </div>
         </div>
       </div>
-      <span class="small" style="text-align:center;font-size:11px">뒤쪽</span>
+      <span class="small" style="text-align:center">뒤쪽</span>
     </div>
     <div class="card" aria-live="polite" style="padding:12px 14px">
       <p id="dTitle" style="margin:0;font-size:16px;font-weight:700"></p>
@@ -160,32 +160,40 @@
     </div>
   </div>
   <div class="bottom"><a class="btn" href="#3.0">우리 인원에 맞는 자리 찾기</a></div>
+  <div class="branch"><button type="button" class="btn mini" id="fullDemo">만석 모습 보기</button></div>
 </section>
 <script>
 (function(){
   const kinds={A:"창가 1인석",B:"2인석",C:"4인석",D:"3인석",F:"좌식"},names={free:"비어 있음",busy:"사용 중",rsv:"예약됨"};
-  const groups=[["A",28,3,12,"gA"],["C",21,1,28,"gC"],["B",12,2,22,"gB"],["F",2,6,28,"gF"],["D",7,5,28,"gD"]];
-  const all={},cnt={};let sel=null;
+  const groups=[["A",28,3,30,"gA"],["C",21,1,44,"gC"],["B",12,2,44,"gB"],["F",2,6,44,"gF"],["D",7,5,44,"gD"]];
+  let all={},cnt={},sel=null,full=false;
   const clock=m=>{const t=12*60+10+m;return Math.floor(t/60)+":"+String(t%60).padStart(2,"0")};
-  groups.forEach(([p,n,seed,h,el])=>{
-    const box=document.getElementById(el);cnt[p]=0;
-    for(let i=0;i<n;i++){
-      const v=(i*5+seed)%7,s=(v===0||v===4)?"free":(v===2?"rsv":"busy"),label=p+(i+1),left=((i*13+seed*7)%50)+5;
-      if(s==="free")cnt[p]++;
-      const b=document.createElement("button");b.type="button";b.className="t "+s;b.style.height=h+"px";
-      b.textContent=p==="A"?"":label;b.setAttribute("aria-label",label+" "+kinds[p]+" "+names[s]);
-      b.onclick=()=>pick(label);box.appendChild(b);all[label]={label,s,left,kind:kinds[p],el:b};
-    }
-  });
-  document.getElementById("freeCount").textContent=cnt.C+cnt.B+cnt.F+cnt.D;
-  document.getElementById("chips").innerHTML=[["4인석","C",21],["3인석","D",7],["2인석","B",12],["좌식","F",2],["창가 1인석","A",28]]
-    .map(([n,k,t])=>`<span class="chip num">${n} <b>${cnt[k]}</b>/${t}</span>`).join("");
+  function build(){
+    all={};
+    groups.forEach(([p,n,seed,h,el])=>{
+      const box=document.getElementById(el);box.innerHTML="";cnt[p]=0;
+      for(let i=0;i<n;i++){
+        const v=(i*5+seed)%7;let s=(v===0||v===4)?"free":(v===2?"rsv":"busy");if(full&&s==="free")s="busy";
+        const label=p+(i+1),left=((i*13+seed*7)%50)+5;if(s==="free")cnt[p]++;
+        const b=document.createElement("button");b.type="button";b.className="t "+s;b.style.height=h+"px";
+        b.textContent=p==="A"?"":label;b.setAttribute("aria-label",label+" "+kinds[p]+" "+names[s]);
+        b.onclick=()=>pick(label);box.appendChild(b);all[label]={label,s,left,kind:kinds[p],el:b};
+      }
+    });
+    document.getElementById("freeCount").textContent=cnt.C+cnt.B+cnt.F+cnt.D;
+    document.getElementById("chips").innerHTML=[["4인석","C",21],["3인석","D",7],["2인석","B",12],["좌식","F",2],["창가 1인석","A",28]]
+      .map(([n,k,t])=>`<span class="chip num">${n} <b>${cnt[k]}</b>/${t}</span>`).join("");
+    sel=null;
+    if(full){document.getElementById("dTitle").textContent="지금은 빈 테이블이 없어요";document.getElementById("dText").textContent="사용 중인 테이블을 누르면 언제 비는지 볼 수 있어요";}
+    else pick("C1");
+  }
   function pick(label){
     if(sel)all[sel].el.classList.remove("sel");sel=label;const t=all[label];t.el.classList.add("sel");
     document.getElementById("dTitle").textContent=t.label+" "+t.kind+", "+names[t.s];
     document.getElementById("dText").textContent=t.s==="busy"?"남은 시간 약 "+t.left+"분, "+clock(t.left)+"쯤 비어요":t.s==="rsv"?"예약한 사람이 오는 중이에요. 체크인하면 사용 중으로 바뀌어요":"지금 예약할 수 있어요";
   }
-  pick("C1");
+  document.getElementById("fullDemo").onclick=e=>{full=!full;e.target.textContent=full?"원래 모습 보기":"만석 모습 보기";build();toast(full?"만석일 때 모습이에요":"원래 모습이에요")};
+  build();
 })();
 </script>
 <section class="screen" id="3.0" data-name="인원과 시간 입력, 테이블 선택">
@@ -211,8 +219,14 @@
 </section>
 <script>
 (function(){
-  ["pplOpts","timeOpts"].forEach(id=>{const g=document.getElementById(id);g.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{g.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed",x===b));toast(b.textContent+" 선택")})});
-  const list=[["C3","C3 4인석",4,"앞쪽 첫 줄, 빈 자리",1],["C5","C5 4인석",4,"C3 바로 옆, 빈 자리",1],["C10","C10 4인석",4,"앞쪽 둘째 줄, 빈 자리",0],["D3","D3 3인석",3,"뒤쪽 오른편, 빈 자리",0]];
+  const lists={
+    "1명":[["A4","A4 창가 1인석",1,"창가 앞쪽, 빈 자리",1],["A6","A6 창가 1인석",1,"창가 앞쪽, 빈 자리",0],["B2","B2 2인석",2,"2인석 첫 줄, 빈 자리",0]],
+    "2명":[["B2","B2 2인석",2,"2인석 첫 줄, 빈 자리",1],["B7","B7 2인석",2,"2인석 셋째 줄, 빈 자리",0],["B9","B9 2인석",2,"2인석 셋째 줄, 빈 자리",0],["D5","D5 3인석",3,"뒤쪽 오른편, 빈 자리",0]],
+    "3~4명":[["C3","C3 4인석",4,"앞쪽 첫 줄, 빈 자리",1],["C5","C5 4인석",4,"앞쪽 첫 줄, 빈 자리",0],["D5","D5 3인석",3,"뒤쪽 오른편, 3명일 때",0],["C10","C10 4인석",4,"앞쪽 둘째 줄, 빈 자리",0]],
+    "5명+":[["C3","C3 4인석",4,"앞쪽 첫 줄, 빈 자리",1],["C5","C5 4인석",4,"C3 바로 옆, 빈 자리",1],["C10","C10 4인석",4,"앞쪽 둘째 줄, 빈 자리",0],["D5","D5 3인석",3,"뒤쪽 오른편, 빈 자리",0]]};
+  let list=lists["5명+"];
+  const timeG=document.getElementById("timeOpts");timeG.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{timeG.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed",x===b));toast(b.textContent+" 선택")});
+  const pplG=document.getElementById("pplOpts");pplG.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{pplG.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed",x===b));list=lists[b.textContent];picked.clear();list.filter(x=>x[4]).forEach(x=>picked.add(x[0]));draw(false);toast(b.textContent+"에 맞는 자리를 추천했어요")});
   const picked=new Set(["C3","C5"]),box=document.getElementById("tblList"),sum=document.getElementById("tblSum"),btn=document.getElementById("reserveBtn");
   const tick='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   function draw(warn){
@@ -263,7 +277,7 @@
     <div style="padding-top:20px"><p style="margin:0;font-size:28px;font-weight:800;line-height:1.3">예약이<br>자동 취소됐어요</p><p class="body" style="margin:8px 0 0;color:var(--sub)">예약하고 10분 안에 테이블 QR을 스캔하지 않아서 취소됐어요.</p></div>
     <div class="card" style="display:flex;flex-direction:column;gap:10px"><p class="small" style="margin:0">취소된 예약</p><div class="kv"><span>테이블</span><b>C3, C5 4인석</b></div><div class="kv"><span>예약 시각</span><b class="num">12:05</b></div><div class="kv"><span>취소 시각</span><b class="num">12:15</b></div></div>
   </div>
-  <div class="bottom"><a class="btn" href="#2.0">현황 보기</a><a class="btn sub" href="#3.0">다시 예약하기</a></div>
+  <div class="bottom"><a class="btn" href="#2.0">현황으로 돌아가기</a><a class="btn sub" href="#3.0">다시 예약하기</a></div>
 </section>
 <section class="screen" id="4.0" data-name="이용 중과 종료 알림">
   <div class="topbar"><span class="h2">이용 중 C3, C5</span><span class="small num">체크인 12:15</span></div>
@@ -287,7 +301,7 @@ document.getElementById("alSoon").onclick=()=>toast("기다리는 사람에게 �
     <p style="margin:0;font-size:24px;font-weight:800;line-height:1.3">정리해 주셔서<br>감사합니다</p>
     <p class="body" style="margin:0;color:var(--sub)">C3, C5 테이블이 빈자리로 바뀌었어요. 깨끗한 자리 덕분에 다음 사람도 기분 좋게 먹을 수 있어요.</p>
     <div style="width:100%;background:var(--bg2);border-radius:var(--radius);padding:10px 12px;font-size:13px;color:var(--sub);text-align:left">쓰레기는 분리해서 버리고, 옮긴 의자는 제자리에 두었는지 한 번 더 확인해 주세요.</div>
-    <a class="btn" href="#2.0">확인</a>
+    <a class="btn" href="#2.0">확인하고 현황으로</a>
   </div></div>
 </section>
 <section class="screen" id="2.1" data-name="자리 없음 팝업" style="position:relative">
@@ -297,7 +311,7 @@ document.getElementById("alSoon").onclick=()=>toast("기다리는 사람에게 �
     <div class="icon" style="background:var(--rsv-bg);border:2px solid var(--accent-t)"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--accent-t)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 11h14M7 11v8M17 11v8M6 7h12"/><path d="M4 4l16 16"/></svg></div>
     <p style="margin:0;font-size:24px;font-weight:800;line-height:1.3">지금은 5명이 앉을<br>빈자리가 없어요</p>
     <p class="body" style="margin:0;color:var(--sub)">가장 빨리 비는 자리는 C2이고<br>약 8분 뒤에 비어요.</p>
-    <div style="width:100%;display:flex;flex-direction:column;gap:10px;margin-top:4px"><button type="button" class="btn sub" id="refresh">새로고침</button><a class="btn" href="#2.0">이전으로 돌아가기</a></div>
+    <div style="width:100%;display:flex;flex-direction:column;gap:10px;margin-top:4px"><button type="button" class="btn sub" id="refresh">새로고침</button><a class="btn" href="#2.0">현황으로 돌아가기</a></div>
   </div></div>
 </section>
 <script>
