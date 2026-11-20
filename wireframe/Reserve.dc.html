@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>2 인원과 시간 입력, 추천</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif}
+a{text-decoration:none}
+button{font:inherit;color:inherit}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#f5f5f3;color:#222;display:flex;flex-direction:column">
+  <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:2px solid #222;background:#fff">
+    <a href="Main.dc.html" style="color:#222;font-size:14px;border:2px solid #222;padding:6px 10px">뒤로</a>
+    <strong style="font-size:18px">자리 찾기</strong>
+  </div>
+  <div style="padding:16px 20px;display:flex;flex-direction:column;gap:16px;flex-grow:1">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <strong style="font-size:16px">몇 명이 먹나요?</strong>
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">
+        <div style="min-height:44px;border:2px solid #222;background:#fff;display:flex;align-items:center;justify-content:center;font-size:15px">1명</div>
+        <div style="min-height:44px;border:2px solid #222;background:#fff;display:flex;align-items:center;justify-content:center;font-size:15px">2명</div>
+        <div style="min-height:44px;border:2px solid #222;background:#fff;display:flex;align-items:center;justify-content:center;font-size:15px">3~4명</div>
+        <div style="min-height:44px;border:2px solid #222;background:#222;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">5명+</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <strong style="font-size:16px">얼마나 앉아 있을까요?</strong>
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">
+        <div style="min-height:44px;border:2px solid #222;background:#fff;display:flex;align-items:center;justify-content:center;font-size:15px">20분</div>
+        <div style="min-height:44px;border:2px solid #222;background:#fff;display:flex;align-items:center;justify-content:center;font-size:15px">30분</div>
+        <div style="min-height:44px;border:2px solid #222;background:#fff;display:flex;align-items:center;justify-content:center;font-size:15px">40분</div>
+        <div style="min-height:44px;border:2px solid #222;background:#222;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">60분</div>
+      </div>
+      <span style="font-size:13px;color:#444">최대 1시간이고, 마감 10분 전에 알려 줍니다</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <strong style="font-size:16px">테이블 선택</strong>
+        <span style="font-size:13px;color:#444">한 사람 최대 2개</span>
+      </div>
+      <sc-for list="{{tables}}" as="t" hint-placeholder-count="4">
+        <button type="button" onClick="{{t.toggle}}" aria-pressed="{{t.pressed}}" aria-disabled="{{t.blocked}}" style="{{t.rowStyle}}">
+          <span style="{{t.boxStyle}}">
+            <sc-if value="{{t.on}}" hint-placeholder-val="{{true}}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+            </sc-if>
+          </span>
+          <span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;flex-grow:1;text-align:left">
+            <strong style="font-size:16px">{{t.name}}</strong>
+            <span style="font-size:13px;color:#444">{{t.note}}</span>
+          </span>
+          <sc-if value="{{t.rec}}" hint-placeholder-val="{{false}}">
+            <span style="font-size:12px;border:1.5px solid #222;padding:1px 6px">추천</span>
+          </sc-if>
+        </button>
+      </sc-for>
+      <span style="font-size:13px;color:#444">{{summary}}</span>
+    </div>
+  </div>
+  <div style="padding:14px 20px 22px;background:#fff;border-top:2px solid #222">
+    <a href="Confirm.dc.html" style="display:flex;align-items:center;justify-content:center;min-height:48px;background:#222;color:#fff;font-size:16px;font-weight:700">{{cta}}</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { picked: { C3: true, C5: true } };
+  }
+  renderVals() {
+    const list = [
+      { id: 'C3', name: 'C3 4인석', seats: 4, note: '앞쪽 첫 줄, 빈 자리', rec: true },
+      { id: 'C5', name: 'C5 4인석', seats: 4, note: 'C3 바로 옆, 빈 자리', rec: true },
+      { id: 'C10', name: 'C10 4인석', seats: 4, note: '앞쪽 둘째 줄, 빈 자리', rec: false },
+      { id: 'D3', name: 'D3 3인석', seats: 3, note: '뒤쪽 오른편, 빈 자리', rec: false }
+    ];
+    const MAX = 2;
+    const picked = this.state.picked;
+    const count = list.filter((t) => picked[t.id]).length;
+    const tables = list.map((t) => {
+      const on = !!picked[t.id];
+      const blocked = !on && count >= MAX;
+      return {
+        ...t,
+        on,
+        pressed: on ? 'true' : 'false',
+        blocked: blocked ? 'true' : 'false',
+        rowStyle: 'display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;min-height:56px;padding:8px 12px;border:2px solid #222;background:' + (on ? '#ececE6' : '#fff') + ';' + (blocked ? 'opacity:.45;cursor:not-allowed;' : 'cursor:pointer;'),
+        boxStyle: 'flex:0 0 auto;width:24px;height:24px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;border:2px solid #222;background:' + (on ? '#222' : '#fff') + ';',
+        toggle: () => { if (blocked) { this.setState({ warn: true }); return; } this.setState({ picked: { ...picked, [t.id]: !on }, warn: false }); }
+      };
+    });
+    const sel = list.filter((t) => picked[t.id]);
+    const seats = sel.reduce((n, t) => n + t.seats, 0);
+    return {
+      tables,
+      summary: this.state.warn && sel.length >= MAX ? '한 사람은 테이블을 최대 2개까지 예약할 수 있어요. 다른 테이블을 고르려면 선택한 것을 먼저 해제하세요.' : (sel.length ? '선택 ' + sel.length + '/2개, 최대 ' + seats + '명이 앉을 수 있어요' : '예약할 테이블을 하나 이상 고르세요'),
+      cta: sel.length ? sel.map((t) => t.id).join(', ') + ' 예약하기' : '테이블을 선택하세요'
+    };
+  }
+}
+</script>
+</body>
+</html>

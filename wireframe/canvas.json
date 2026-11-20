@@ -1,0 +1,115 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Artboard-zhpc.dc.html": {
+      "h": 600,
+      "handmade": true,
+      "page": "page-jdefn2",
+      "title": "Artboard 1",
+      "w": 800,
+      "x": 0,
+      "y": 0
+    },
+    "Login.dc.html": {
+      "h": 844,
+      "title": "0 학번 로그인",
+      "w": 390,
+      "x": -470,
+      "y": 0,
+      "is_interactive": true
+    },
+    "Confirm.dc.html": {
+      "h": 844,
+      "title": "3 예약 완료",
+      "w": 390,
+      "x": 940,
+      "y": 0
+    },
+    "Full.dc.html": {
+      "h": 844,
+      "title": "5 자리 없음",
+      "w": 390,
+      "x": 470,
+      "y": 964
+    },
+    "InUse.dc.html": {
+      "h": 844,
+      "title": "4 이용 중과 종료 알림",
+      "w": 390,
+      "x": 0,
+      "y": 964
+    },
+    "Main.dc.html": {
+      "h": 844,
+      "title": "1 좌석 현황",
+      "w": 390,
+      "x": 0,
+      "y": 0
+    },
+    "Report.dc.html": {
+      "h": 844,
+      "title": "6 청결 신고",
+      "w": 390,
+      "x": 940,
+      "y": 964
+    },
+    "Reserve.dc.html": {
+      "h": 844,
+      "title": "2 인원과 시간 입력, 테이블 선택",
+      "w": 390,
+      "x": 470,
+      "y": 0,
+      "is_interactive": true
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-11-13T09:00:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "noteOrder": [
+    "t1",
+    "s1"
+  ],
+  "notes": {
+    "s1": {
+      "text": "흐름은 0 로그인, 1 현황, 2 테이블 선택, 3 예약, 4 이용 중 순서입니다. 자리가 없으면 1에서 5로, 이용 중 불편 신고는 4에서 6으로 갑니다.",
+      "w": 420,
+      "x": -470,
+      "y": -110
+    },
+    "t1": {
+      "kind": "title1",
+      "maxW": 1800,
+      "text": "수덕자리 모바일 웹 와이어프레임",
+      "w": 240,
+      "x": -470,
+      "y": -300
+    }
+  },
+  "order": [
+    "Login.dc.html",
+    "Main.dc.html",
+    "Reserve.dc.html",
+    "Confirm.dc.html",
+    "InUse.dc.html",
+    "Full.dc.html",
+    "Report.dc.html",
+    "Artboard-zhpc.dc.html"
+  ],
+  "pages": [
+    {
+      "id": "page-1",
+      "name": "Page 1"
+    },
+    {
+      "id": "page-jdefn2",
+      "name": "Page 2"
+    }
+  ],
+  "title": "수덕자리 와이어프레임"
+}

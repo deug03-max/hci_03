@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>1 좌석 현황</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif}
+a{text-decoration:none}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#f5f5f3;color:#222;display:flex;flex-direction:column">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:2px solid #222;background:#fff">
+    <strong style="font-size:20px">수덕자리</strong>
+    <span style="font-size:14px;color:#555">12:10 기준</span>
+  </div>
+  <div style="padding:14px 20px;display:flex;flex-direction:column;gap:10px;flex-grow:1">
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <span style="font-size:13px;color:#555">수덕전 2층 현재</span>
+      <strong style="font-size:24px">빈 테이블 {{freeTables}} / 42</strong>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">
+      <sc-for list="{{chips}}" as="c" hint-placeholder-count="5">
+        <span style="font-size:12px;border:1.5px solid #222;background:#fff;padding:2px 8px">{{c.text}}</span>
+      </sc-for>
+    </div>
+    <div style="display:flex;gap:12px;font-size:12px;color:#444">
+      <span style="display:flex;align-items:center;gap:5px"><i style="width:12px;height:12px;border:1.5px solid #222;background:#fff;display:inline-block"></i>비어 있음</span>
+      <span style="display:flex;align-items:center;gap:5px"><i style="width:12px;height:12px;border:1.5px solid #222;background:#6b6b6b;display:inline-block"></i>사용 중</span>
+      <span style="display:flex;align-items:center;gap:5px"><i style="width:12px;height:12px;border:1.5px dashed #222;background:#fff;display:inline-block"></i>예약됨</span>
+    </div>
+    <div style="background:#fff;border:2px solid #222;padding:10px;display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:11px;color:#444;text-align:center">앞쪽</span>
+      <div style="display:flex;gap:8px">
+        <div style="width:26px;display:flex;flex-direction:column;gap:4px">
+          <span style="font-size:10px;color:#444;text-align:center;line-height:1.2">창가</span>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <sc-for list="{{singles}}" as="t" hint-placeholder-count="28">
+              <div style="{{t.style}}"></div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="flex-grow:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:11px;color:#444">4인석 21</span>
+          <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px">
+            <sc-for list="{{fours}}" as="t" hint-placeholder-count="21">
+              <div style="{{t.style}}">{{t.label}}</div>
+            </sc-for>
+          </div>
+          <span style="font-size:11px;color:#444">2인석 12</span>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;width:60%;align-self:center">
+            <sc-for list="{{twos}}" as="t" hint-placeholder-count="12">
+              <div style="{{t.style}}">{{t.label}}</div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:8px">
+            <div style="width:28%;display:flex;flex-direction:column;gap:4px">
+              <span style="font-size:11px;color:#444">좌식 2</span>
+              <sc-for list="{{floors}}" as="t" hint-placeholder-count="2">
+                <div style="{{t.style}}">{{t.label}}</div>
+              </sc-for>
+            </div>
+            <div style="flex-grow:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+              <span style="font-size:11px;color:#444">3인석 7</span>
+              <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px">
+                <sc-for list="{{threes}}" as="t" hint-placeholder-count="7">
+                  <div style="{{t.style}}">{{t.label}}</div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <span style="font-size:11px;color:#444;text-align:center">뒤쪽</span>
+    </div>
+  </div>
+  <div style="padding:14px 20px 22px;display:flex;flex-direction:column;gap:10px;background:#fff;border-top:2px solid #222">
+    <a href="Reserve.dc.html" style="display:flex;align-items:center;justify-content:center;min-height:48px;background:#222;color:#fff;font-size:16px;font-weight:700">우리 인원에 맞는 자리 찾기</a>
+    <a href="Full.dc.html" style="display:flex;align-items:center;justify-content:center;min-height:44px;border:2px solid #222;color:#222;font-size:14px">자리가 없을 때 화면 보기</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const base = 'box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:10px;';
+    const look = {
+      free: 'border:1.5px solid #222;background:#fff;color:#222;',
+      busy: 'border:1.5px solid #222;background:#6b6b6b;color:#fff;',
+      rsv: 'border:1.5px dashed #222;background:#fff;color:#222;'
+    };
+    const make = (prefix, n, seed, h) => {
+      const out = [];
+      for (let i = 0; i < n; i++) {
+        const v = (i * 5 + seed) % 7;
+        const s = (v === 0 || v === 4) ? 'free' : (v === 2 ? 'rsv' : 'busy');
+        out.push({ label: prefix + (i + 1), s, style: base + look[s] + 'height:' + h + 'px' });
+      }
+      return out;
+    };
+    const singles = make('A', 28, 3, 10);
+    const fours = make('C', 21, 1, 26);
+    const twos = make('B', 12, 2, 20);
+    const floors = make('F', 2, 6, 26);
+    const threes = make('D', 7, 5, 26);
+    const free = (a) => a.filter((t) => t.s === 'free').length;
+    const chips = [
+      { text: '4인석 ' + free(fours) + '/21' },
+      { text: '3인석 ' + free(threes) + '/7' },
+      { text: '2인석 ' + free(twos) + '/12' },
+      { text: '좌식 ' + free(floors) + '/2' },
+      { text: '창가 1인석 ' + free(singles) + '/28' }
+    ];
+    return {
+      singles, fours, twos, floors, threes, chips,
+      freeTables: free(fours) + free(twos) + free(floors) + free(threes)
+    };
+  }
+}
+</script>
+</body>
+</html>

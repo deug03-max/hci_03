@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>4 이용 중과 종료 알림</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif}
+a{text-decoration:none}
+</style>
+</helmet>
+<div style="width:390px;height:844px;box-sizing:border-box;background:#f5f5f3;color:#222;display:flex;flex-direction:column">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:2px solid #222;background:#fff">
+    <strong style="font-size:18px">이용 중 C3</strong>
+    <span style="font-size:14px;color:#444">체크인 12:15</span>
+  </div>
+  <div style="padding:20px;display:flex;flex-direction:column;gap:20px;flex-grow:1">
+    <div style="border:2px solid #222;background:#fff;padding:20px;display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:14px;color:#444">남은 이용 시간</span>
+      <strong style="font-size:48px">11:20</strong>
+      <div style="height:14px;border:2px solid #222;background:#fff"><div style="width:82%;height:100%;background:#222"></div></div>
+      <span style="font-size:13px;color:#444">마감 13:15, 최대 60분</span>
+    </div>
+    <div style="border:2px dashed #222;background:#fff;padding:14px;display:flex;flex-direction:column;gap:6px">
+      <strong style="font-size:15px">마감 10분 전 알림 예시</strong>
+      <span style="font-size:14px;color:#333">13:05에 알림이 뜹니다. 알림 문구: 이용 마감 10분 전입니다. 정리를 시작해 주세요.</span>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <div style="flex-grow:1;min-height:44px;border:2px solid #222;background:#fff;display:flex;align-items:center;justify-content:center;font-size:14px">확인</div>
+        <div style="flex-grow:1;min-height:44px;border:2px solid #222;background:#fff;display:flex;align-items:center;justify-content:center;font-size:14px">곧 나갈게요</div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;border:2px solid #222;background:#fff;padding:12px 14px;font-size:14px">
+      <span>기다리는 사람</span><strong>2팀</strong>
+    </div>
+    <a href="Report.dc.html" style="display:flex;align-items:center;justify-content:center;min-height:44px;border:2px solid #222;background:#fff;color:#222;font-size:14px">쓰레기통, 테이블 불편 신고</a>
+  </div>
+  <div style="padding:16px 20px 24px;background:#fff;border-top:2px solid #222">
+    <a href="Main.dc.html" style="display:flex;align-items:center;justify-content:center;min-height:48px;background:#222;color:#fff;font-size:16px;font-weight:700">정리하고 퇴실</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
