@@ -20,7 +20,7 @@ flowchart LR
   subgraph G3["예약"]
     S3_0["인원과 시간 입력 테이블 선택 3.0"]
     S3_1["예약 완료 3.1"]
-    N1["자동 취소 안내 (새 화면)"]
+    N1["자동 취소 안내 3.2"]
   end
   subgraph G4["이용"]
     S4_0["이용 중 4.0"]
@@ -47,8 +47,7 @@ flowchart LR
   classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
   classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
   class S1_0,S2_0,S2_1,S3_0,S3_1,S4_0,S4_1 has
-  class N2 has
-  class N1 new
+  class N1,N2 has
 </pre></div>
 <h2>플로우 1: 4명이 함께 먹기 (핵심)</h2>
 <div class="box"><pre class="mermaid">
@@ -62,7 +61,7 @@ flowchart LR
   S2_1 -.->|"새로고침"| S3_0
   S2_1 -.->|"이전으로 돌아가기"| S2_0
   S3_1 -->|"테이블 QR 한 번 스캔"| S4_0["이용 중 4.0"]
-  S3_1 -.->|"10분 안에 체크인 안 함"| N1["자동 취소 안내 (새 화면)"]
+  S3_1 -.->|"10분 안에 체크인 안 함"| N1["자동 취소 안내 3.2"]
   S3_1 -.->|"예약 취소"| S2_0
   N1 -.->|"다시 예약하기"| S3_0
   N1 -.->|"현황 보기"| S2_0
@@ -74,8 +73,7 @@ flowchart LR
   classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
   classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
   class S1_0,S2_0,S2_1,S3_0,S3_1,S4_0,S4_1 has
-  class N2 has
-  class N1 new
+  class N1,N2 has
 </pre></div>
 <h2>플로우 2: 공강 30분 안에 끝내기</h2>
 <div class="box"><pre class="mermaid">
@@ -90,7 +88,7 @@ flowchart LR
   S2_1 -.->|"새로고침"| S3_0
   S2_1 -.->|"이전으로 돌아가기"| S2_0
   S3_1 -->|"테이블 QR 한 번 스캔"| S4_0["이용 중 4.0"]
-  S3_1 -.->|"10분 안에 체크인 안 함"| N1["자동 취소 안내 (새 화면)"]
+  S3_1 -.->|"10분 안에 체크인 안 함"| N1["자동 취소 안내 3.2"]
   N1 -.->|"다시 예약하기"| S3_0
   N1 -.->|"현황 보기"| S2_0
   S4_0 -->|"정리하고 퇴실"| N2["퇴실 완료 팝업 4.2"]
@@ -99,8 +97,7 @@ flowchart LR
   classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
   classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
   class S1_0,S2_0,S2_1,S3_0,S3_1,S4_0 has
-  class N2 has
-  class N1 new
+  class N1,N2 has
 </pre></div>
 <script>mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:true}})</script>
 </body></html>

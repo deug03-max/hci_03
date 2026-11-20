@@ -31,9 +31,10 @@
 |---|---|---|---|
 | 1.0 | 학번 로그인 | `wireframe/Login.dc.html` | 캔버스 번호 0 |
 | 2.0 | 좌석 현황 (홈) | `wireframe/Main.dc.html` | 캔버스 번호 1 |
-| 2.1 | 자리 없음 팝업 | `wireframe/Full.dc.html` | 캔버스 번호 5, 현황 위에 뜨는 팝업 |
+| 2.1 | 자리 없음 팝업 | `wireframe/Full.dc.html` | 캔버스 번호 5, 3.0에서 고른 인원이 앉을 자리가 없을 때 뜨는 팝업 |
 | 3.0 | 인원과 시간 입력, 테이블 선택 | `wireframe/Reserve.dc.html` | 캔버스 번호 2 |
 | 3.1 | 예약 완료 | `wireframe/Confirm.dc.html` | 캔버스 번호 3 |
+| 3.2 | 자동 취소 안내 | `wireframe/3.2-auto-cancel.dc.html` | 캔버스 번호 8 |
 | 4.0 | 이용 중과 종료 알림 | `wireframe/InUse.dc.html` | 캔버스 번호 4 |
 | 4.1 | 청결 신고 | `wireframe/Report.dc.html` | 캔버스 번호 6 |
 | 4.2 | 퇴실 완료 팝업 | `wireframe/Done.dc.html` | 캔버스 번호 7, '정리해 주셔서 감사합니다' 후 2.0으로 |
