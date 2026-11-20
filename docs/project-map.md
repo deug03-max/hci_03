@@ -36,6 +36,7 @@
 | 3.1 | 예약 완료 | `wireframe/Confirm.dc.html` | 캔버스 번호 3 |
 | 4.0 | 이용 중과 종료 알림 | `wireframe/InUse.dc.html` | 캔버스 번호 4 |
 | 4.1 | 청결 신고 | `wireframe/Report.dc.html` | 캔버스 번호 6 |
+| 4.2 | 퇴실 완료 팝업 | `wireframe/Done.dc.html` | 캔버스 번호 7, '정리해 주셔서 감사합니다' 후 2.0으로 |
 | - | (빈 프레임) | `wireframe/Artboard-zhpc.dc.html` | 캔버스 Page 2, 내용 없음 |
 
 ## 비어 있는 것

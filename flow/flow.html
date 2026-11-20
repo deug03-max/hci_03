@@ -15,7 +15,7 @@ flowchart LR
   subgraph G2["현황"]
     S2_0["좌석 현황 2.0"]
     S2_1["자리 없음 팝업 2.1"]
-    N2["퇴실 완료 팝업 (새 화면)"]
+    N2["퇴실 완료 팝업 4.2"]
   end
   subgraph G3["예약"]
     S3_0["인원과 시간 입력 테이블 선택 3.0"]
@@ -47,7 +47,8 @@ flowchart LR
   classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
   classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
   class S1_0,S2_0,S2_1,S3_0,S3_1,S4_0,S4_1 has
-  class N1,N2 new
+  class N2 has
+  class N1 new
 </pre></div>
 <h2>플로우 1: 4명이 함께 먹기 (핵심)</h2>
 <div class="box"><pre class="mermaid">
@@ -65,7 +66,7 @@ flowchart LR
   S3_1 -.->|"예약 취소"| S2_0
   N1 -.->|"다시 예약하기"| S3_0
   N1 -.->|"현황 보기"| S2_0
-  S4_0 -->|"정리하고 퇴실"| N2["퇴실 완료 팝업 (새 화면)"]
+  S4_0 -->|"정리하고 퇴실"| N2["퇴실 완료 팝업 4.2"]
   N2 -->|"확인"| S2_0
   S4_0 -.->|"불편 신고"| S4_1["청결 신고 4.1"]
   S4_1 -.->|"신고하기"| S4_0
@@ -73,7 +74,8 @@ flowchart LR
   classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
   classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
   class S1_0,S2_0,S2_1,S3_0,S3_1,S4_0,S4_1 has
-  class N1,N2 new
+  class N2 has
+  class N1 new
 </pre></div>
 <h2>플로우 2: 공강 30분 안에 끝내기</h2>
 <div class="box"><pre class="mermaid">
@@ -91,13 +93,14 @@ flowchart LR
   S3_1 -.->|"10분 안에 체크인 안 함"| N1["자동 취소 안내 (새 화면)"]
   N1 -.->|"다시 예약하기"| S3_0
   N1 -.->|"현황 보기"| S2_0
-  S4_0 -->|"정리하고 퇴실"| N2["퇴실 완료 팝업 (새 화면)"]
+  S4_0 -->|"정리하고 퇴실"| N2["퇴실 완료 팝업 4.2"]
   N2 -->|"확인"| S2_0
   classDef has fill:#e8f1ff,stroke:#4a7fd6
   classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
   classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
   class S1_0,S2_0,S2_1,S3_0,S3_1,S4_0 has
-  class N1,N2 new
+  class N2 has
+  class N1 new
 </pre></div>
 <script>mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:true}})</script>
 </body></html>
