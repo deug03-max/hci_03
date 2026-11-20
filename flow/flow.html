@@ -4,6 +4,51 @@
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script></head><body>
 <h1>수덕자리 서비스 플로우</h1>
 <p class="lg"><span><i style="background:#e8f1ff;border:1px solid #4a7fd6"></i>와이어프레임 있음</span><span><i style="background:#fff4e0;border:1px dashed #d68a1a"></i>와이어프레임 없음</span><span><i style="background:#ffecec;border:1px dashed #c44"></i>새 화면</span></p>
+<h2>전체 서비스 플로우</h2>
+<p class="lg">굵은 화살표가 핵심 플로우(플로우 1)이고, 점선은 갈림길이에요.</p>
+<div class="box"><pre class="mermaid">
+flowchart LR
+  QR["배포 QR (서비스 밖)"] ==>|"QR 스캔"| S1_0
+  subgraph G1["로그인"]
+    S1_0["학번 로그인 1.0"]
+  end
+  subgraph G2["현황"]
+    S2_0["좌석 현황 2.0"]
+    S2_1["자리 없음 팝업 2.1"]
+    N2["퇴실 완료 팝업 (새 화면)"]
+  end
+  subgraph G3["예약"]
+    S3_0["인원과 시간 입력 테이블 선택 3.0"]
+    S3_1["예약 완료 3.1"]
+    N1["자동 취소 안내 (새 화면)"]
+  end
+  subgraph G4["이용"]
+    S4_0["이용 중 4.0"]
+    S4_1["청결 신고 4.1"]
+  end
+  S1_0 ==>|"로그인"| S2_0
+  S1_0 -.->|"로그인 오류"| S1_0
+  S2_0 ==>|"자리 찾기"| S3_0
+  S2_0 -.->|"빈자리 없음"| OUT["다른 곳으로 이동 (서비스 밖)"]
+  S3_0 ==>|"테이블 고르고 예약하기"| S3_1
+  S3_0 -.->|"맞는 빈 테이블 없음"| S2_1
+  S2_1 -.->|"새로고침"| S3_0
+  S2_1 -.->|"이전으로 돌아가기"| S2_0
+  S3_1 ==>|"테이블 QR 한 번 스캔"| S4_0
+  S3_1 -.->|"10분 안에 체크인 안 함"| N1
+  S3_1 -.->|"예약 취소"| S2_0
+  N1 -.->|"다시 예약하기"| S3_0
+  N1 -.->|"현황 보기"| S2_0
+  S4_0 ==>|"정리하고 퇴실"| N2
+  N2 ==>|"확인"| S2_0
+  S4_0 -.->|"불편 신고"| S4_1
+  S4_1 -.->|"신고하기"| S4_0
+  classDef has fill:#e8f1ff,stroke:#4a7fd6
+  classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
+  classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
+  class S1_0,S2_0,S2_1,S3_0,S3_1,S4_0,S4_1 has
+  class N1,N2 new
+</pre></div>
 <h2>플로우 1: 4명이 함께 먹기 (핵심)</h2>
 <div class="box"><pre class="mermaid">
 flowchart LR
@@ -28,6 +73,30 @@ flowchart LR
   classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
   classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
   class S1_0,S2_0,S2_1,S3_0,S3_1,S4_0,S4_1 has
+  class N1,N2 new
+</pre></div>
+<h2>플로우 2: 공강 30분 안에 끝내기</h2>
+<div class="box"><pre class="mermaid">
+flowchart LR
+  QR["배포 QR (서비스 밖)"] -->|"QR 스캔"| S1_0["학번 로그인 1.0"]
+  S1_0 -->|"저장된 정보로 로그인"| S2_0["좌석 현황 2.0"]
+  S1_0 -.->|"로그인 오류"| S1_0
+  S2_0 -->|"빈자리 확인 후 자리 찾기"| S3_0["인원과 시간 입력 테이블 선택 3.0"]
+  S2_0 -.->|"빈자리 없음"| OUT["다른 곳으로 이동 (서비스 밖)"]
+  S3_0 -->|"짧은 시간 고르고 예약하기"| S3_1["예약 완료 3.1"]
+  S3_0 -.->|"맞는 빈 테이블 없음"| S2_1["자리 없음 팝업 2.1"]
+  S2_1 -.->|"새로고침"| S3_0
+  S2_1 -.->|"이전으로 돌아가기"| S2_0
+  S3_1 -->|"테이블 QR 한 번 스캔"| S4_0["이용 중 4.0"]
+  S3_1 -.->|"10분 안에 체크인 안 함"| N1["자동 취소 안내 (새 화면)"]
+  N1 -.->|"다시 예약하기"| S3_0
+  N1 -.->|"현황 보기"| S2_0
+  S4_0 -->|"정리하고 퇴실"| N2["퇴실 완료 팝업 (새 화면)"]
+  N2 -->|"확인"| S2_0
+  classDef has fill:#e8f1ff,stroke:#4a7fd6
+  classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
+  classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
+  class S1_0,S2_0,S2_1,S3_0,S3_1,S4_0 has
   class N1,N2 new
 </pre></div>
 <script>mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:true}})</script>
