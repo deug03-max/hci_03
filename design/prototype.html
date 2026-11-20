@@ -1,0 +1,103 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>수덕자리 프로토타입</title>
+<style>
+:root{--main:#1f3a8a;--main-d:#172c6b;--accent:#e8553f;--accent-t:#b93a26;--bg:#ffffff;--bg2:#f4f6f9;--text:#1b2230;--sub:#4a5363;--line:#d9dde5;--ok:#1e7b45;--ok-bg:#e7f5ec;--busy:#5b6472;--rsv-bg:#fff1ec;--radius:12px}
+*{box-sizing:border-box}body{margin:0;background:#eceef1;font-family:system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:var(--text)}
+.device{width:390px;max-width:100%;min-height:780px;margin:24px auto;background:var(--bg);border-radius:28px;box-shadow:0 8px 30px rgba(0,0,0,.12);overflow:hidden;position:relative}
+.screen{display:none;min-height:780px}.screen.on{display:block}
+#toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;opacity:0;transition:.2s;pointer-events:none}#toast.on{opacity:1}
+#idx{position:fixed;right:16px;top:16px;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer}
+#list{position:fixed;right:16px;top:56px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px;display:none;max-height:70vh;overflow:auto;min-width:200px}#list.on{display:block}#list a{display:block;padding:6px 8px;color:var(--text);text-decoration:none;font-size:14px;border-radius:8px}#list a:hover{background:#f2f2f5}
+/* 공통 부품 스타일은 여기 아래에 */
+.num{font-variant-numeric:tabular-nums}
+.h1{font-size:22px;font-weight:700;margin:0}.h2{font-size:17px;font-weight:700;margin:0}.body{font-size:16px}.small{font-size:13px;color:var(--sub)}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:0 20px;border-bottom:1px solid var(--line);background:var(--bg)}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;border-radius:var(--radius);border:0;background:var(--main);color:#fff;font:inherit;font-size:16px;font-weight:700;text-decoration:none;cursor:pointer;transition:transform .08s,background .15s}
+.btn:active{transform:scale(.98);background:var(--main-d)}
+.btn.sub{background:#fff;color:var(--main);border:1.5px solid var(--main);min-height:44px;font-size:15px}
+.btn.sub:active{background:var(--bg2)}
+.btn.mini{width:auto;min-height:44px;padding:0 14px;font-size:13px;font-weight:600;background:var(--bg2);color:var(--sub);border:1px dashed var(--line)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:14px;font-weight:700}
+.input{display:flex;align-items:center;gap:10px;min-height:52px;padding:0 12px 0 14px;border:1.5px solid var(--line);border-radius:var(--radius);background:#fff}
+.input:focus-within{border-color:var(--main);box-shadow:0 0 0 3px rgba(31,58,138,.15)}
+.input.err{border-color:var(--accent-t)}
+.input input{flex:1;min-width:0;border:0;outline:0;font:inherit;font-size:17px;color:var(--text);background:transparent;padding:12px 0}
+.check{flex:0 0 auto;width:26px;height:26px;border-radius:8px;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;background:#fff;transition:.15s}
+.check.on{background:var(--ok);border-color:var(--ok)}
+.check svg{opacity:0}.check.on svg{opacity:1}
+.help{font-size:13px;color:var(--sub);min-height:18px}.help.err{color:var(--accent-t);font-weight:600}.help.ok{color:var(--ok)}
+.toggle{display:flex;align-items:center;gap:10px;min-height:44px;border:0;background:none;padding:0;font:inherit;font-size:15px;color:var(--text);cursor:pointer;text-align:left}
+.box{flex:0 0 auto;width:24px;height:24px;border-radius:7px;border:1.5px solid var(--sub);display:flex;align-items:center;justify-content:center;background:#fff}
+.toggle[aria-pressed="true"] .box{background:var(--main);border-color:var(--main)}
+.toggle .box svg{opacity:0}.toggle[aria-pressed="true"] .box svg{opacity:1}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.branch{display:flex;justify-content:center;gap:8px;padding:12px 20px 20px}
+</style></head><body>
+<button id="idx">화면 목록</button><div id="list"></div>
+<div class="device">
+<!-- 화면은 여기에 하나씩 추가: <section class="screen" id="1.0" data-name="홈"> ... </section> -->
+<section class="screen" id="1.0" data-name="학번 로그인">
+  <div style="padding:64px 28px 28px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+    <div style="width:72px;height:72px;border-radius:20px;background:var(--bg2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--sub)">로고 자리</div>
+    <p style="margin:6px 0 0;font-size:30px;font-weight:800;color:var(--main);letter-spacing:-.02em">수덕자리</p>
+    <p class="small" style="margin:0;font-size:15px">수덕전 2층 점심 좌석 현황과 예약</p>
+  </div>
+  <form id="login" novalidate style="padding:0 28px;display:flex;flex-direction:column;gap:16px">
+    <div class="field">
+      <label for="sid">학번</label>
+      <div class="input" id="sidBox">
+        <input id="sid" inputmode="numeric" maxlength="8" placeholder="학번 8자리" autocomplete="username" class="num" value="20231234">
+        <span class="check on" id="sidCheck" role="img" aria-label="올바른 학번"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+      </div>
+      <span class="help ok" id="sidHelp">올바른 학번 형식이에요</span>
+    </div>
+    <div class="field">
+      <label for="pw">비밀번호</label>
+      <div class="input" id="pwBox"><input id="pw" type="password" placeholder="학교 포털 비밀번호" autocomplete="current-password" value="password"></div>
+      <span class="help" id="pwHelp"></span>
+      <button type="button" class="toggle" id="save" aria-pressed="true"><span class="box"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>비밀번호 저장 (다음부터 자동 입력)</button>
+    </div>
+    <button type="submit" class="btn">로그인</button>
+    <p class="small" style="margin:0;text-align:center">동의대학교 재학생만 이용할 수 있어요.</p>
+  </form>
+  <p class="small" style="margin:28px 28px 0;text-align:center;font-size:12px">로그인 정보는 예약자 확인과 노쇼 관리에만 사용해요.</p>
+  <div class="branch"><button type="button" class="btn mini" id="loginErrDemo">로그인 오류 모습 보기</button></div>
+</section>
+<script>
+(function(){
+  const sid=document.getElementById("sid"),box=document.getElementById("sidBox"),chk=document.getElementById("sidCheck"),help=document.getElementById("sidHelp");
+  const pw=document.getElementById("pw"),pwBox=document.getElementById("pwBox"),pwHelp=document.getElementById("pwHelp"),save=document.getElementById("save");
+  function checkSid(){
+    sid.value=sid.value.replace(/\D/g,"").slice(0,8);
+    const ok=/^\d{8}$/.test(sid.value);
+    chk.classList.toggle("on",ok);chk.setAttribute("aria-label",ok?"올바른 학번":"학번 확인 전");
+    box.classList.remove("err");
+    help.className="help"+(ok?" ok":"");
+    help.textContent=ok?"올바른 학번 형식이에요":(sid.value?"학번은 숫자 8자리예요":"학번 8자리를 입력하세요");
+    return ok;
+  }
+  sid.addEventListener("input",checkSid);
+  pw.addEventListener("input",()=>{pwBox.classList.remove("err");pwHelp.className="help";pwHelp.textContent=""});
+  save.onclick=()=>{const on=save.getAttribute("aria-pressed")!=="true";save.setAttribute("aria-pressed",on);toast(on?"비밀번호를 저장해요":"비밀번호를 저장하지 않아요")};
+  function showError(msg){pwBox.classList.add("err");pwHelp.className="help err";pwHelp.textContent=msg;toast("로그인하지 못했어요")}
+  document.getElementById("login").addEventListener("submit",e=>{
+    e.preventDefault();
+    if(!checkSid()){box.classList.add("err");help.className="help err";help.textContent="학번은 숫자 8자리예요";toast("학번을 확인해 주세요");sid.focus();return}
+    if(!pw.value){showError("비밀번호를 입력하세요");pw.focus();return}
+    toast("로그인했어요");location.hash="#2.0";
+  });
+  document.getElementById("loginErrDemo").onclick=()=>{showError("학번이나 비밀번호가 맞지 않아요. 다시 입력해 주세요")};
+})();
+</script>
+<!-- 화면 끝 -->
+</div>
+<div id="toast"></div>
+<script>
+const S=[...document.querySelectorAll(".screen")],L=document.getElementById("list"),T=document.getElementById("toast");
+L.innerHTML=S.map(s=>`<a href="#${s.id}">${s.id} ${s.dataset.name||""}</a>`).join("");
+document.getElementById("idx").onclick=()=>L.classList.toggle("on");
+function toast(m){T.textContent=m;T.classList.add("on");clearTimeout(T._t);T._t=setTimeout(()=>T.classList.remove("on"),1600)}
+function show(){const id=decodeURIComponent(location.hash.slice(1));const t=S.find(s=>s.id===id)||S[0];if(id&&!S.some(s=>s.id===id))toast("아직 만들지 않은 화면이에요");S.forEach(s=>s.classList.toggle("on",s===t));L.classList.remove("on");window.scrollTo(0,0)}
+addEventListener("hashchange",show);show();
+</script></body></html>
