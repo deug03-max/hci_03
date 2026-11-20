@@ -45,7 +45,8 @@
       "title": "1 좌석 현황",
       "w": 390,
       "x": 0,
-      "y": 0
+      "y": 0,
+      "is_interactive": true
     },
     "3.2-auto-cancel.dc.html": {
       "h": 844,

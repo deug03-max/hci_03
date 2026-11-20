@@ -22,6 +22,7 @@ a{text-decoration:none}
     <div style="display:flex;flex-direction:column;gap:2px">
       <span style="font-size:13px;color:#555">수덕전 2층 현재</span>
       <strong style="font-size:24px">빈 테이블 {{freeTables}} / 42</strong>
+      <span style="font-size:12px;color:#444">테이블을 누르면 남은 시간이 보여요</span>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:6px">
       <sc-for list="{{chips}}" as="c" hint-placeholder-count="5">
@@ -40,7 +41,7 @@ a{text-decoration:none}
           <span style="font-size:10px;color:#444;text-align:center;line-height:1.2">창가</span>
           <div style="display:flex;flex-direction:column;gap:2px">
             <sc-for list="{{singles}}" as="t" hint-placeholder-count="28">
-              <div style="{{t.style}}"></div>
+              <button type="button" onClick="{{t.pick}}" aria-label="{{t.aria}}" style="{{t.style}}"></button>
             </sc-for>
           </div>
         </div>
@@ -48,27 +49,27 @@ a{text-decoration:none}
           <span style="font-size:11px;color:#444">4인석 21</span>
           <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px">
             <sc-for list="{{fours}}" as="t" hint-placeholder-count="21">
-              <div style="{{t.style}}">{{t.label}}</div>
+              <button type="button" onClick="{{t.pick}}" aria-label="{{t.aria}}" style="{{t.style}}">{{t.label}}</button>
             </sc-for>
           </div>
           <span style="font-size:11px;color:#444">2인석 12</span>
           <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;width:60%;align-self:center">
             <sc-for list="{{twos}}" as="t" hint-placeholder-count="12">
-              <div style="{{t.style}}">{{t.label}}</div>
+              <button type="button" onClick="{{t.pick}}" aria-label="{{t.aria}}" style="{{t.style}}">{{t.label}}</button>
             </sc-for>
           </div>
           <div style="display:flex;gap:8px">
             <div style="width:28%;display:flex;flex-direction:column;gap:4px">
               <span style="font-size:11px;color:#444">좌식 2</span>
               <sc-for list="{{floors}}" as="t" hint-placeholder-count="2">
-                <div style="{{t.style}}">{{t.label}}</div>
+                <button type="button" onClick="{{t.pick}}" aria-label="{{t.aria}}" style="{{t.style}}">{{t.label}}</button>
               </sc-for>
             </div>
             <div style="flex-grow:1;min-width:0;display:flex;flex-direction:column;gap:4px">
               <span style="font-size:11px;color:#444">3인석 7</span>
               <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px">
                 <sc-for list="{{threes}}" as="t" hint-placeholder-count="7">
-                  <div style="{{t.style}}">{{t.label}}</div>
+                  <button type="button" onClick="{{t.pick}}" aria-label="{{t.aria}}" style="{{t.style}}">{{t.label}}</button>
                 </sc-for>
               </div>
             </div>
@@ -76,6 +77,10 @@ a{text-decoration:none}
         </div>
       </div>
       <span style="font-size:11px;color:#444;text-align:center">뒤쪽</span>
+    </div>
+    <div aria-live="polite" style="background:#fff;border:2px solid #222;padding:10px 12px;display:flex;flex-direction:column;gap:2px">
+      <strong style="font-size:15px">{{detailTitle}}</strong>
+      <span style="font-size:13px;color:#444">{{detailText}}</span>
     </div>
   </div>
   <div style="padding:14px 20px 22px;display:flex;flex-direction:column;gap:10px;background:#fff;border-top:2px solid #222">
@@ -91,12 +96,27 @@ class Component extends DCLogic {
       busy: 'border:1.5px solid #222;background:#6b6b6b;color:#fff;',
       rsv: 'border:1.5px dashed #222;background:#fff;color:#222;'
     };
+    const sel = this.state && this.state.sel ? this.state.sel : 'C1';
+    const kinds = { A: '창가 1인석', B: '2인석', C: '4인석', D: '3인석', F: '좌식' };
+    const clock = (m) => { const t = 12 * 60 + 10 + m; return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); };
+    const all = {};
     const make = (prefix, n, seed, h) => {
       const out = [];
       for (let i = 0; i < n; i++) {
         const v = (i * 5 + seed) % 7;
         const s = (v === 0 || v === 4) ? 'free' : (v === 2 ? 'rsv' : 'busy');
-        out.push({ label: prefix + (i + 1), s, style: base + look[s] + 'height:' + h + 'px' });
+        const label = prefix + (i + 1);
+        const left = ((i * 13 + seed * 7) % 50) + 5;
+        const ring = label === sel ? 'outline:3px solid #0b5cad;outline-offset:1px;' : '';
+        const t = {
+          label, s, left,
+          kind: kinds[prefix],
+          aria: label + ' ' + kinds[prefix] + ' ' + ({ free: '비어 있음', busy: '사용 중', rsv: '예약됨' })[s],
+          style: base + look[s] + ring + 'height:' + h + 'px;width:100%;padding:0;margin:0;font-family:inherit;cursor:pointer;',
+          pick: () => this.setState({ sel: label })
+        };
+        all[label] = t;
+        out.push(t);
       }
       return out;
     };
@@ -105,6 +125,11 @@ class Component extends DCLogic {
     const twos = make('B', 12, 2, 20);
     const floors = make('F', 2, 6, 26);
     const threes = make('D', 7, 5, 26);
+    const cur = all[sel];
+    const detailTitle = cur.label + ' ' + cur.kind + ', ' + ({ free: '비어 있음', busy: '사용 중', rsv: '예약됨' })[cur.s];
+    const detailText = cur.s === 'busy'
+      ? '남은 시간 약 ' + cur.left + '분, ' + clock(cur.left) + '쯤 비어요'
+      : (cur.s === 'rsv' ? '예약한 사람이 오는 중이에요. 체크인하면 사용 중으로 바뀌어요' : '지금 예약할 수 있어요');
     const free = (a) => a.filter((t) => t.s === 'free').length;
     const chips = [
       { text: '4인석 ' + free(fours) + '/21' },
@@ -114,7 +139,7 @@ class Component extends DCLogic {
       { text: '창가 1인석 ' + free(singles) + '/28' }
     ];
     return {
-      singles, fours, twos, floors, threes, chips,
+      singles, fours, twos, floors, threes, chips, detailTitle, detailText,
       freeTables: free(fours) + free(twos) + free(floors) + free(threes)
     };
   }
