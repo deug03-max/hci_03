@@ -8,8 +8,8 @@
 | 자료 | 파일 |
 |---|---|
 | 서비스 기획서 | `수덕전_점심좌석_서비스_기획서.md` (편집용 원본: https://claude.ai/artifact/H8T6M2zJpqj1a9qumMWbsL) |
-| 퍼소나 | 저장소에 없음. 기획서 2절에 페르소나 C, D 요약이 있음 |
-| 인터뷰, 조사 | 저장소에 없음. 기획서 1절에 인터뷰 집계와 인용이 있음 |
+| 퍼소나 | `docs/research/persona-board.jpg` (페르소나 A~D 보드), `docs/research/persona-draft-patterns.png` (패턴 A, B, 미정 초안). 서비스 대표는 C, D (기획서 2절) |
+| 인터뷰, 조사 | `docs/research/interview-script.hwpx` (원본), `docs/research/interview-script.md` (텍스트), `docs/research/behavior-axes.png` (행동 축별 참여자 분포) |
 | 메뉴 구조 | 없음 |
 | 와이어프레임 | `wireframe/` (화면 7개 `.dc.html`, 설명은 `wireframe/README.md`, 캔버스: https://claude.ai/artifact/7VqoBoFQdag8zZma8cmVa3) |
 | 그 밖의 자료 | `index.html` (초기 서비스 소개 페이지), `seat-layout-editor.html` (좌석 배치도 편집기) |
@@ -40,6 +40,6 @@
 
 ## 비어 있는 것
 - 메뉴 구조 문서가 없다. 위 화면 목록은 초안이다.
-- 퍼소나 보드 원본과 인터뷰 원문이 저장소에 없다 (기획서 안에 요약만 있음).
+- 페르소나 보드와 행동 축 자료에는 P3, P4가 나오지만, 인터뷰 스크립트에는 P1, P2, P5~P11만 있다. 또 P8 표시가 두 번 나온다 (기획서는 응답 10건으로 셈).
 - 기획서의 "대체 장소 안내" 기능과 시나리오 D 2단계에 맞는 화면이 없다. 와이어프레임 5번에서 대체 장소 목록을 뺐다.
 - 로그인 화면, 테이블 다중 선택(최대 2개), 신고 사진 첨부가 와이어프레임에는 있지만 기획서 4절 기능 표에는 없다.
