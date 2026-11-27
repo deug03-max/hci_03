@@ -96,7 +96,6 @@ button.chip[aria-pressed="true"] b{color:#fff}
     <p class="small" style="margin:0;text-align:center">동의대학교 재학생만 이용할 수 있어요.</p>
   </form>
   <p class="small" style="margin:28px 28px 0;text-align:center;font-size:12px">로그인 정보는 예약자 확인과 노쇼 관리에만 사용해요.</p>
-  <div class="branch"><button type="button" class="btn mini" id="loginErrDemo">로그인 오류 모습 보기</button></div>
 </section>
 <script>
 (function(){
@@ -121,7 +120,6 @@ button.chip[aria-pressed="true"] b{color:#fff}
     if(!pw.value){showError("비밀번호를 입력하세요");pw.focus();return}
     toast("로그인했어요");location.hash="#1.1";
   });
-  document.getElementById("loginErrDemo").onclick=()=>{showError("학번이나 비밀번호가 맞지 않아요. 다시 입력해 주세요")};
 })();
 </script>
 <section class="screen" id="1.1" data-name="인원 선택">
@@ -131,18 +129,16 @@ button.chip[aria-pressed="true"] b{color:#fff}
     <div id="pplPick" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px"></div>
   </div>
   <div class="bottom"><a class="btn sub" href="#2.0" id="pplAll">인원 상관없이 전체 좌석 보기</a></div>
-  <div class="branch"><button type="button" class="btn mini" id="pplNoneDemo">남은 자리 없음 모습 보기</button></div>
 </section>
 <script>
 (function(){
   const opts=[["1명","창가 1인석","A"],["2명","2인석","B"],["3명","3인석","D"],["4명","4인석","C"],["5명 이상","4인석 2개까지","C"],["좌식 원해요","좌식 테이블","F"]];
-  const box=document.getElementById("pplPick");let none=false;
+  const box=document.getElementById("pplPick");
   opts.forEach(([n,sub,k])=>{const b=document.createElement("button");b.type="button";b.className="row";b.style.cssText="flex-direction:column;align-items:flex-start;gap:2px;min-height:76px";
     b.innerHTML=`<b style="font-size:20px">${n}</b><span class="small">${sub}</span>`;
-    b.onclick=()=>{b.setAttribute("aria-pressed","true");setTimeout(()=>b.setAttribute("aria-pressed","false"),400);location.hash="#2.0";const full=none;setTimeout(()=>window.openType&&window.openType(k,n,full),0);none=false;document.getElementById("pplNoneDemo").textContent="남은 자리 없음 모습 보기"};
+    b.onclick=()=>{b.setAttribute("aria-pressed","true");setTimeout(()=>b.setAttribute("aria-pressed","false"),400);location.hash="#2.0";setTimeout(()=>window.openType&&window.openType(k,n,false),0)};
     box.appendChild(b)});
   document.getElementById("pplAll").onclick=()=>setTimeout(()=>window.openType&&window.openType(null),0);
-  document.getElementById("pplNoneDemo").onclick=e=>{none=!none;e.target.textContent=none?"인원을 고르면 '남은 자리 없음'이 떠요":"남은 자리 없음 모습 보기";toast(none?"이제 인원을 고르면 자리가 다 찬 경우를 보여 줘요":"원래대로 돌아왔어요")};
 })();
 </script>
 <section class="screen" id="2.0" data-name="좌석 현황" style="position:relative">
@@ -210,7 +206,8 @@ button.chip[aria-pressed="true"] b{color:#fff}
   groups.forEach(([p,n,seed,h,el])=>{
     const box=document.getElementById(el);cnt[p]=0;
     for(let i=0;i<n;i++){
-      const v=(i*5+seed)%7,s=(v===0||v===4)?"free":(v===2?"rsv":"busy"),label=p+(i+1),left=((i*13+seed*7)%50)+5;
+      const v=(i*5+seed)%7,label=p+(i+1),left=((i*13+seed*7)%50)+5;let s=(v===0||v===4)?"free":(v===2?"rsv":"busy");
+      if(p==="B"&&s==="free")s="busy"; // 시연: 2인석은 점심시간에 모두 찬 상태
       if(s==="free")cnt[p]++;
       const t={label,s,left,p,kind:kinds[p],els:[]};all[label]=t;box.appendChild(tile(t,h,p!=="A"));
     }
@@ -280,18 +277,17 @@ button.chip[aria-pressed="true"] b{color:#fff}
     </div>
   </div>
   <div class="bottom"><a class="btn" id="reserveBtn" href="#3.1">예약하기</a></div>
-  <div class="branch"><a class="btn mini" href="#2.1">자리 없음 모습 보기</a></div>
 </section>
 <script>
 (function(){
   const lists={
-    "1명":[["A4","A4 창가 1인석",1,"창가 앞쪽, 빈 자리",1],["A6","A6 창가 1인석",1,"창가 앞쪽, 빈 자리",0],["B2","B2 2인석",2,"2인석 첫 줄, 빈 자리",0]],
+    "1명":[["A4","A4 창가 1인석",1,"창가 앞쪽, 빈 자리",1],["A6","A6 창가 1인석",1,"창가 앞쪽, 빈 자리",0],["A11","A11 창가 1인석",1,"창가 가운데, 빈 자리",0]],
     "2명":[["B2","B2 2인석",2,"2인석 첫 줄, 빈 자리",1],["B7","B7 2인석",2,"2인석 셋째 줄, 빈 자리",0],["B9","B9 2인석",2,"2인석 셋째 줄, 빈 자리",0],["D5","D5 3인석",3,"뒤쪽 오른편, 빈 자리",0]],
     "3~4명":[["C3","C3 4인석",4,"앞쪽 첫 줄, 빈 자리",1],["C5","C5 4인석",4,"앞쪽 첫 줄, 빈 자리",0],["D5","D5 3인석",3,"뒤쪽 오른편, 3명일 때",0],["C10","C10 4인석",4,"앞쪽 둘째 줄, 빈 자리",0]],
     "5명+":[["C3","C3 4인석",4,"앞쪽 첫 줄, 빈 자리",1],["C5","C5 4인석",4,"C3 바로 옆, 빈 자리",1],["C10","C10 4인석",4,"앞쪽 둘째 줄, 빈 자리",0],["D5","D5 3인석",3,"뒤쪽 오른편, 빈 자리",0]]};
   let list=lists["5명+"];
   const timeG=document.getElementById("timeOpts");timeG.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{timeG.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed",x===b));toast(b.textContent+" 선택")});
-  const pplG=document.getElementById("pplOpts");pplG.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{pplG.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed",x===b));list=lists[b.textContent];picked.clear();list.filter(x=>x[4]).forEach(x=>picked.add(x[0]));draw(false);toast(b.textContent+"에 맞는 자리를 추천했어요")});
+  const pplG=document.getElementById("pplOpts");pplG.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{pplG.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed",x===b));if(b.textContent==="2명"){location.hash="#2.1";return}list=lists[b.textContent];picked.clear();list.filter(x=>x[4]).forEach(x=>picked.add(x[0]));draw(false);toast(b.textContent+"에 맞는 자리를 추천했어요")});
   const picked=new Set(["C3","C5"]),box=document.getElementById("tblList"),sum=document.getElementById("tblSum"),btn=document.getElementById("reserveBtn");
   const tick='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   function draw(warn){
@@ -332,12 +328,11 @@ button.chip[aria-pressed="true"] b{color:#fff}
     <div class="ph" style="height:96px" data-bk="map">C3, C5 위치 안내 지도</div>
   </div>
   <div class="bottom"><a class="btn" href="#4.0" id="qrBtn">테이블 QR 스캔하기</a><a class="btn sub" href="#2.0" id="cancelBtn">예약 취소</a></div>
-  <div class="branch"><a class="btn mini" href="#3.2">10분이 지나면 모습 보기</a></div>
 </section>
 <script>
 (function(){
   let t0=null,iv=null;const el=document.getElementById("ciLeft");
-  function run(){if(location.hash!=="#3.1"){clearInterval(iv);return}t0=Date.now();clearInterval(iv);iv=setInterval(()=>{const s=Math.max(0,600-Math.floor((Date.now()-t0)/1000));el.textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0")},1000)}
+  function run(){if(location.hash!=="#3.1"){clearInterval(iv);return}t0=Date.now();clearInterval(iv);iv=setInterval(()=>{const s=Math.max(0,600-Math.floor((Date.now()-t0)/1000));el.textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0");if(s===0){clearInterval(iv);location.hash="#3.2"}},1000)}
   addEventListener("hashchange",run);run();
   document.getElementById("qrBtn").onclick=()=>toast((window.BK||{ids:["C3","C5"]}).ids.join(", ")+" 체크인했어요");
   document.getElementById("cancelBtn").onclick=()=>toast("예약을 취소했어요");
@@ -354,8 +349,8 @@ button.chip[aria-pressed="true"] b{color:#fff}
 <section class="screen" id="4.0" data-name="이용 중과 종료 알림">
   <div class="topbar"><span class="h2" data-bk="inuse">이용 중 C3, C5</span><span class="small num">체크인 12:15</span></div>
   <div style="padding:20px;display:flex;flex-direction:column;gap:16px">
-    <div class="card" style="display:flex;flex-direction:column;gap:10px"><p class="small" style="margin:0">남은 이용 시간</p><p class="big num" style="font-size:48px">11:20</p><div class="bar"><i style="width:81%"></i></div><p class="small num" style="margin:0">마감 13:15, 최대 60분</p></div>
-    <div class="alert" style="display:flex;flex-direction:column;gap:6px"><p style="margin:0;font-weight:700;color:var(--accent-t)">마감 10분 전 알림 예시</p><p style="margin:0;font-size:15px">13:05에 알림이 떠요. "이용 마감 10분 전이에요. 정리를 시작해 주세요."</p><div style="display:flex;gap:8px;margin-top:4px"><button type="button" class="btn sub" style="flex:1" id="alOk">확인</button><button type="button" class="btn sub" style="flex:1" id="alSoon">곧 나갈게요</button></div></div>
+    <div class="card" style="display:flex;flex-direction:column;gap:10px"><p class="small" style="margin:0">남은 이용 시간</p><p class="big num" style="font-size:48px">09:40</p><div class="bar"><i style="width:84%"></i></div><p class="small num" style="margin:0">마감 13:15, 최대 60분</p></div>
+    <div class="alert" style="display:flex;flex-direction:column;gap:6px"><p style="margin:0;font-weight:700;color:var(--accent-t)">이용 마감 10분 전이에요</p><p style="margin:0;font-size:15px">13:15에 이용이 끝나요. 정리를 시작해 주세요.</p><div style="display:flex;gap:8px;margin-top:4px"><button type="button" class="btn sub" style="flex:1" id="alOk">확인</button><button type="button" class="btn sub" style="flex:1" id="alSoon">곧 나갈게요</button></div></div>
     <div class="card kv" style="align-items:center"><span>기다리는 사람</span><b class="num">2팀</b></div>
     <a class="btn sub" href="#4.1">쓰레기통, 테이블 불편 신고</a>
   </div>
@@ -381,8 +376,8 @@ document.getElementById("alSoon").onclick=()=>toast("기다리는 사람에게 �
   <div class="fake"><i style="height:20px;width:40%"></i><i style="height:44px"></i><i style="height:20px;width:50%"></i><i style="height:44px"></i><i style="height:20px;width:35%"></i><i style="height:240px"></i></div>
   <div class="dim"><div class="pop" role="dialog" aria-label="자리 없음 안내">
     <div class="icon" style="background:var(--rsv-bg);border:2px solid var(--accent-t)"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--accent-t)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 11h14M7 11v8M17 11v8M6 7h12"/><path d="M4 4l16 16"/></svg></div>
-    <p style="margin:0;font-size:24px;font-weight:800;line-height:1.3">지금은 5명이 앉을<br>빈자리가 없어요</p>
-    <p class="body" style="margin:0;color:var(--sub)">가장 빨리 비는 자리는 C2이고<br>약 8분 뒤에 비어요.</p>
+    <p style="margin:0;font-size:24px;font-weight:800;line-height:1.3">지금은 2명이 앉을<br>빈자리가 없어요</p>
+    <p class="body" style="margin:0;color:var(--sub)">가장 빨리 비는 2인석은 B4이고<br>약 8분 뒤에 비어요.</p>
     <div style="width:100%;display:flex;flex-direction:column;gap:10px;margin-top:4px"><button type="button" class="btn sub" id="refresh">새로고침</button><a class="btn" href="#2.0">현황으로 돌아가기</a></div>
   </div></div>
 </section>
