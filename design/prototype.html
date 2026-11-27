@@ -164,7 +164,9 @@ button.chip[aria-pressed="true"] b{color:#fff}
         <p class="small num" id="oneCount" style="margin:0"></p>
       </div>
       <p class="small" id="oneWhere" style="margin:0"></p>
-      <div id="oneGrid" style="display:grid;gap:8px"></div>
+      <p class="small" id="oneHint" style="margin:0;font-weight:600;color:var(--main)"></p>
+      <div id="oneScroll" style="overflow:auto;max-height:430px;-webkit-overflow-scrolling:touch;border-radius:10px;padding:4px"><div id="oneGrid" style="display:grid;gap:8px;width:max-content"></div></div>
+      <button type="button" class="btn" id="oneReserve" disabled style="opacity:.45">빈 자리를 골라 주세요</button>
     </div>
     <div class="card" aria-live="polite" style="padding:12px 14px">
       <p id="dTitle" style="margin:0;font-size:16px;font-weight:700"></p>
@@ -177,7 +179,7 @@ button.chip[aria-pressed="true"] b{color:#fff}
 (function(){
   const kinds={A:"창가 1인석",B:"2인석",C:"4인석",D:"3인석",F:"좌식"},names={free:"비어 있음",busy:"사용 중",rsv:"예약됨"};
   const groups=[["A",28,3,30,"gA"],["C",21,1,44,"gC"],["B",12,2,44,"gB"],["F",2,6,44,"gF"],["D",7,5,44,"gD"]];
-  const one={C:{cols:4,where:"맨 앞쪽, 7열 3행"},D:{cols:4,where:"뒤쪽 중앙에서 오른편"},B:{cols:3,where:"4인석 뒤, 3열 4행"},F:{cols:2,where:"뒤쪽 왼편"},A:{cols:4,where:"왼편 창가 한 줄"}};
+  const one={C:{cols:7,where:"맨 앞쪽, 7열 3행",seats:4},D:{cols:4,where:"뒤쪽 중앙에서 오른편, 4개와 3개 두 줄",seats:3},B:{cols:3,where:"4인석 뒤, 3열 4행",seats:2},F:{cols:1,where:"뒤쪽 왼편, 2개",seats:4},A:{cols:1,where:"왼편 창가 한 줄, 28자리",seats:1}};
   const order=[["4인석","C",21],["3인석","D",7],["2인석","B",12],["좌식","F",2],["창가 1인석","A",28]];
   const all={},cnt={};let sel=null,filter=null;
   const clock=m=>{const t=12*60+10+m;return Math.floor(t/60)+":"+String(t%60).padStart(2,"0")};
@@ -207,15 +209,23 @@ button.chip[aria-pressed="true"] b{color:#fff}
     document.getElementById("oneTitle").textContent=o[0];
     document.getElementById("oneCount").textContent="빈자리 "+cnt[k]+" / "+o[2];
     document.getElementById("oneWhere").textContent="위치: "+one[k].where;
-    const g=document.getElementById("oneGrid");g.innerHTML="";g.style.gridTemplateColumns="repeat("+one[k].cols+",minmax(0,1fr))";
+    const g=document.getElementById("oneGrid");g.innerHTML="";g.style.gridTemplateColumns="repeat("+one[k].cols+",64px)";
     Object.values(all).filter(t=>t.p===k).forEach(t=>{t.els=t.els.filter(e=>e.isConnected);const b=tile(t,56,true);b.style.fontSize="14px";g.appendChild(b)});
+    const sc=document.getElementById("oneScroll");sc.scrollTop=0;sc.scrollLeft=0;
+    requestAnimationFrame(()=>{const w=sc.scrollWidth>sc.clientWidth+2,h=sc.scrollHeight>sc.clientHeight+2;
+      document.getElementById("oneHint").textContent=w&&h?"옆과 아래로 넘겨서 모든 자리를 보세요":w?"옆으로 넘겨서 모든 자리를 보세요":h?"아래로 넘겨서 모든 자리를 보세요":""});
+    if(sel&&all[sel].p!==k)pick(Object.values(all).find(t=>t.p===k).label);else updateReserve();
     toast(o[0]+"만 보여 줘요");
   }
   function pick(label){
     if(sel)all[sel].els.forEach(e=>e.classList.remove("sel"));sel=label;const t=all[label];t.els.forEach(e=>e.classList.add("sel"));
     document.getElementById("dTitle").textContent=t.label+" "+t.kind+", "+names[t.s];
     document.getElementById("dText").textContent=t.s==="busy"?"남은 시간 약 "+t.left+"분, "+clock(t.left)+"쯤 비어요":t.s==="rsv"?"예약한 사람이 오는 중이에요. 체크인하면 사용 중으로 바뀌어요":"지금 예약할 수 있어요";
+    updateReserve();
   }
+  const rb=document.getElementById("oneReserve");
+  function updateReserve(){const t=sel&&all[sel];const ok=!!t&&t.s==="free"&&filter&&t.p===filter;rb.disabled=!ok;rb.style.opacity=ok?1:.45;rb.textContent=ok?t.label+" "+t.kind+" 바로 예약하기":"빈 자리를 골라 주세요"}
+  rb.onclick=()=>{const t=all[sel];if(!t||t.s!=="free")return;if(window.reserveFrom)window.reserveFrom(t.label,t.label+" "+t.kind,one[t.p].seats);toast(t.label+"를 골랐어요. 인원과 시간을 확인하세요");location.hash="#3.0"};
   drawChips();pick("C1");
 })();
 </script>
@@ -268,6 +278,10 @@ button.chip[aria-pressed="true"] b{color:#fff}
   }
   btn.onclick=e=>{if(!picked.size){e.preventDefault();toast("테이블을 먼저 고르세요");return}toast("예약했어요")};
   draw(false);
+  window.reserveFrom=(id,name,seats)=>{const key=seats===1?"1명":seats===2?"2명":"3~4명";
+    pplG.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed",x.textContent===key));
+    list=[[id,name,seats,"현황에서 고른 자리",1]].concat(lists[key].filter(x=>x[0]!==id).map(x=>[x[0],x[1],x[2],x[3],0]));
+    picked.clear();picked.add(id);draw(false)};
 })();
 </script>
 <section class="screen" id="3.1" data-name="예약 완료">
