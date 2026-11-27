@@ -187,6 +187,16 @@ button.chip[aria-pressed="true"] b{color:#fff}
     <button type="button" class="btn num" id="oneReserve" aria-live="polite" disabled style="opacity:.45">빈 자리를 골라 주세요</button>
   </div>
   <div class="bottom" id="allBottom"><a class="btn sub" href="#3.0">인원에 맞는 자리 찾기</a></div>
+  <div class="dim" id="cfModal" hidden style="z-index:20"><div class="pop" role="dialog" aria-label="예약 확인" style="align-items:stretch;text-align:left">
+    <p class="small" style="margin:0;text-align:center">이 자리로 예약할까요?</p>
+    <p id="cfName" style="margin:0;font-size:26px;font-weight:800;color:var(--main);text-align:center"></p>
+    <p class="small" id="cfWhere" style="margin:0;text-align:center"></p>
+    <p class="h2" style="margin:6px 0 0">얼마나 앉아 있을까요?</p>
+    <div class="opts" id="cfTime"><button type="button" class="opt" aria-pressed="false">20분</button><button type="button" class="opt" aria-pressed="false">30분</button><button type="button" class="opt" aria-pressed="false">40분</button><button type="button" class="opt" aria-pressed="true">60분</button></div>
+    <p class="small" style="margin:0">최대 1시간이고, 마감 10분 전에 알려 줘요</p>
+    <button type="button" class="btn" id="cfOk">예약하기</button>
+    <button type="button" class="btn sub" id="cfBack">다시 고르기</button>
+  </div></div>
   <div class="dim" id="noneModal" hidden style="z-index:20"><div class="pop" role="dialog" aria-label="남은 자리 없음 안내">
     <div class="icon" style="background:var(--rsv-bg);border:2px solid var(--accent-t)"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--accent-t)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 11h14M7 11v8M17 11v8M6 7h12"/><path d="M4 4l16 16"/></svg></div>
     <p style="margin:0;font-size:24px;font-weight:800;line-height:1.3">남은 자리가 없습니다</p>
@@ -245,8 +255,15 @@ button.chip[aria-pressed="true"] b{color:#fff}
   const rb=document.getElementById("oneReserve");
   function updateReserve(){const t=sel&&all[sel];const ok=!!t&&t.s==="free";rb.disabled=!ok;rb.style.opacity=ok?1:.6;
     rb.textContent=!t?"빈 자리를 골라 주세요":ok?t.label+" "+t.kind+" 바로 예약하기":t.s==="busy"?t.label+" 사용 중, 약 "+t.left+"분 뒤("+clock(t.left)+") 비어요":t.label+" 예약됨, 곧 체크인해요"}
-  rb.onclick=()=>{const t=all[sel];if(!t||t.s!=="free")return;const n=one[t.p].seats;
-    if(window.setBooking)window.setBooking([t.label],t.label+" "+t.kind,n===1?"1명":n===2?"2명":"3~4명");toast(t.label+" "+t.kind+"를 예약했어요");location.hash="#3.1"};
+  const cf=document.getElementById("cfModal"),cfT=document.getElementById("cfTime");
+  cfT.querySelectorAll(".opt").forEach(b=>b.onclick=()=>cfT.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed",x===b)));
+  rb.onclick=()=>{const t=all[sel];if(!t||t.s!=="free")return;
+    document.getElementById("cfName").textContent=t.label+" "+t.kind;document.getElementById("cfWhere").textContent="위치: "+one[t.p].where;
+    cfT.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed",x.textContent==="60분"));cf.hidden=false;document.getElementById("cfOk").focus()};
+  document.getElementById("cfBack").onclick=()=>{cf.hidden=true;rb.focus()};
+  document.getElementById("cfOk").onclick=()=>{const t=all[sel];const n=one[t.p].seats;const m=parseInt(cfT.querySelector('[aria-pressed="true"]').textContent,10);
+    cf.hidden=true;if(window.setBooking)window.setBooking([t.label],t.label+" "+t.kind,n===1?"1명":n===2?"2명":"3~4명",m);toast(t.label+" "+t.kind+"를 "+m+"분 예약했어요");location.hash="#3.1"};
+  addEventListener("hashchange",()=>{if(location.hash!=="#2.0")cf.hidden=true});
   window.openType=(k,pplName,forceNone)=>{
     if(!k){show(null);return}
     if(forceNone||cnt[k]===0){show(null);const o=order.find(x=>x[1]===k);
@@ -307,7 +324,7 @@ button.chip[aria-pressed="true"] b{color:#fff}
   btn.onclick=e=>{if(!picked.size){e.preventDefault();toast("테이블을 먼저 고르세요");return}
     const sel=list.filter(x=>picked.has(x[0])),ppl=(pplG.querySelector('[aria-pressed="true"]')||{}).textContent||"";
     const kindsTxt=[...new Set(sel.map(x=>x[1].split(" ").slice(1).join(" ")))].join(", ");
-    if(window.setBooking)window.setBooking(sel.map(x=>x[0]),sel.map(x=>x[0]).join(", ")+" "+kindsTxt,ppl==="5명+"?"5명 이상":ppl);toast("예약했어요")};
+    if(window.setBooking)window.setBooking(sel.map(x=>x[0]),sel.map(x=>x[0]).join(", ")+" "+kindsTxt,ppl==="5명+"?"5명 이상":ppl,parseInt((document.querySelector('#timeOpts [aria-pressed="true"]')||{textContent:"60"}).textContent,10));toast("예약했어요")};
   draw(false);
   window.reserveFrom=(id,name,seats)=>{const key=seats===1?"1명":seats===2?"2명":"3~4명";
     pplG.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed",x.textContent===key));
@@ -416,10 +433,10 @@ document.getElementById("refresh").onclick=()=>{toast("다시 찾고 있어요")
 })();
 </script>
 <script>
-window.setBooking=function(ids,name,people){
+window.setBooking=function(ids,name,people,min){
   window.BK={ids,name,people};
   const two=ids.length>1,set=(k,v)=>document.querySelectorAll('[data-bk="'+k+'"]').forEach(e=>e.textContent=v);
-  set("count","내 자리 "+ids.length+"개");set("name",name);set("info",people+", 최대 60분, 수덕전 2층");
+  set("count","내 자리 "+ids.length+"개");set("name",name);set("info",people+", 최대 "+(min||60)+"분, 수덕전 2층");
   set("qr",two?ids[0]+"나 "+ids[1]+" 중 한 테이블의 QR만 스캔하세요. 두 테이블이 함께 체크인돼요.":ids[0]+" 테이블에 붙은 QR을 스캔하세요.");
   set("map",ids.join(", ")+" 위치 안내 지도");set("inuse","이용 중 "+ids.join(", "));set("ids",ids.join(", "));
 };
