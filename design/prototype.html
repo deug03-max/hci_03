@@ -166,12 +166,8 @@ button.chip[aria-pressed="true"] b{color:#fff}
       <p class="small" id="oneWhere" style="margin:0"></p>
       <p class="small" id="oneHint" style="margin:0;font-weight:600;color:var(--main)"></p>
       <div id="oneScroll" style="overflow:auto;max-height:430px;-webkit-overflow-scrolling:touch;border-radius:10px;padding:4px"><div id="oneGrid" style="display:grid;gap:8px;width:max-content"></div></div>
-      <button type="button" class="btn" id="oneReserve" disabled style="opacity:.45">빈 자리를 골라 주세요</button>
     </div>
-    <div class="card" aria-live="polite" style="padding:12px 14px">
-      <p id="dTitle" style="margin:0;font-size:16px;font-weight:700"></p>
-      <p id="dText" class="small num" style="margin:2px 0 0;font-size:14px"></p>
-    </div>
+    <button type="button" class="btn num" id="oneReserve" aria-live="polite" disabled style="opacity:.45">빈 자리를 골라 주세요</button>
   </div>
   <div class="bottom"><a class="btn" href="#3.0">우리 인원에 맞는 자리 찾기</a></div>
 </section>
@@ -219,13 +215,13 @@ button.chip[aria-pressed="true"] b{color:#fff}
   }
   function pick(label){
     if(sel)all[sel].els.forEach(e=>e.classList.remove("sel"));sel=label;const t=all[label];t.els.forEach(e=>e.classList.add("sel"));
-    document.getElementById("dTitle").textContent=t.label+" "+t.kind+", "+names[t.s];
-    document.getElementById("dText").textContent=t.s==="busy"?"남은 시간 약 "+t.left+"분, "+clock(t.left)+"쯤 비어요":t.s==="rsv"?"예약한 사람이 오는 중이에요. 체크인하면 사용 중으로 바뀌어요":"지금 예약할 수 있어요";
     updateReserve();
   }
   const rb=document.getElementById("oneReserve");
-  function updateReserve(){const t=sel&&all[sel];const ok=!!t&&t.s==="free"&&filter&&t.p===filter;rb.disabled=!ok;rb.style.opacity=ok?1:.45;rb.textContent=ok?t.label+" "+t.kind+" 바로 예약하기":"빈 자리를 골라 주세요"}
-  rb.onclick=()=>{const t=all[sel];if(!t||t.s!=="free")return;if(window.reserveFrom)window.reserveFrom(t.label,t.label+" "+t.kind,one[t.p].seats);toast(t.label+"를 골랐어요. 인원과 시간을 확인하세요");location.hash="#3.0"};
+  function updateReserve(){const t=sel&&all[sel];const ok=!!t&&t.s==="free";rb.disabled=!ok;rb.style.opacity=ok?1:.6;
+    rb.textContent=!t?"빈 자리를 골라 주세요":ok?t.label+" "+t.kind+" 바로 예약하기":t.s==="busy"?t.label+" 사용 중, 약 "+t.left+"분 뒤("+clock(t.left)+") 비어요":t.label+" 예약됨, 곧 체크인해요"}
+  rb.onclick=()=>{const t=all[sel];if(!t||t.s!=="free")return;const n=one[t.p].seats;
+    if(window.setBooking)window.setBooking([t.label],t.label+" "+t.kind,n===1?"1명":n===2?"2명":"3~4명");toast(t.label+" "+t.kind+"를 예약했어요");location.hash="#3.1"};
   drawChips();pick("C1");
 })();
 </script>
@@ -276,7 +272,10 @@ button.chip[aria-pressed="true"] b{color:#fff}
     btn.textContent=sel.length?sel.map(x=>x[0]).join(", ")+" 예약하기":"테이블을 선택하세요";
     btn.style.opacity=sel.length?1:.45;btn.setAttribute("aria-disabled",!sel.length);
   }
-  btn.onclick=e=>{if(!picked.size){e.preventDefault();toast("테이블을 먼저 고르세요");return}toast("예약했어요")};
+  btn.onclick=e=>{if(!picked.size){e.preventDefault();toast("테이블을 먼저 고르세요");return}
+    const sel=list.filter(x=>picked.has(x[0])),ppl=(pplG.querySelector('[aria-pressed="true"]')||{}).textContent||"";
+    const kindsTxt=[...new Set(sel.map(x=>x[1].split(" ").slice(1).join(" ")))].join(", ");
+    if(window.setBooking)window.setBooking(sel.map(x=>x[0]),sel.map(x=>x[0]).join(", ")+" "+kindsTxt,ppl==="5명+"?"5명 이상":ppl);toast("예약했어요")};
   draw(false);
   window.reserveFrom=(id,name,seats)=>{const key=seats===1?"1명":seats===2?"2명":"3~4명";
     pplG.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed",x.textContent===key));
@@ -287,14 +286,14 @@ button.chip[aria-pressed="true"] b{color:#fff}
 <section class="screen" id="3.1" data-name="예약 완료">
   <div class="topbar"><span class="h2">예약 완료</span></div>
   <div style="padding:20px;display:flex;flex-direction:column;gap:16px">
-    <div class="card"><p class="small" style="margin:0">내 자리 2개</p><p style="margin:4px 0;font-size:30px;font-weight:800;color:var(--main)">C3, C5 4인석</p><p class="small" style="margin:0">5명 이상, 최대 60분, 수덕전 2층</p></div>
+    <div class="card"><p class="small" style="margin:0" data-bk="count">내 자리 2개</p><p style="margin:4px 0;font-size:30px;font-weight:800;color:var(--main)" data-bk="name">C3, C5 4인석</p><p class="small" style="margin:0" data-bk="info">5명 이상, 최대 60분, 수덕전 2층</p></div>
     <div class="card" style="display:flex;flex-direction:column;gap:6px"><p class="small" style="margin:0">체크인 남은 시간</p><p class="big num" id="ciLeft">10:00</p><p class="small" style="margin:0">10분 안에 체크인하지 않으면 예약이 자동 취소돼요.</p></div>
     <div style="display:flex;flex-direction:column;gap:8px">
       <p class="h2">도착하면</p>
-      <p style="margin:0;display:flex;gap:10px;font-size:15px"><span class="chip" style="min-height:24px;padding:0 9px">1</span>C3나 C5 중 한 테이블의 QR만 스캔하세요. 두 테이블이 함께 체크인돼요.</p>
+      <p style="margin:0;display:flex;gap:10px;font-size:15px"><span class="chip" style="min-height:24px;padding:0 9px">1</span><span data-bk="qr">C3나 C5 중 한 테이블의 QR만 스캔하세요. 두 테이블이 함께 체크인돼요.</span></p>
       <p style="margin:0;display:flex;gap:10px;font-size:15px"><span class="chip" style="min-height:24px;padding:0 9px">2</span>체크인하면 이용 시간이 시작돼요.</p>
     </div>
-    <div class="ph" style="height:96px">C3, C5 위치 안내 지도</div>
+    <div class="ph" style="height:96px" data-bk="map">C3, C5 위치 안내 지도</div>
   </div>
   <div class="bottom"><a class="btn" href="#4.0" id="qrBtn">테이블 QR 스캔하기</a><a class="btn sub" href="#2.0" id="cancelBtn">예약 취소</a></div>
   <div class="branch"><a class="btn mini" href="#3.2">10분이 지나면 모습 보기</a></div>
@@ -304,7 +303,7 @@ button.chip[aria-pressed="true"] b{color:#fff}
   let t0=null,iv=null;const el=document.getElementById("ciLeft");
   function run(){if(location.hash!=="#3.1"){clearInterval(iv);return}t0=Date.now();clearInterval(iv);iv=setInterval(()=>{const s=Math.max(0,600-Math.floor((Date.now()-t0)/1000));el.textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0")},1000)}
   addEventListener("hashchange",run);run();
-  document.getElementById("qrBtn").onclick=()=>toast("C3, C5 체크인했어요");
+  document.getElementById("qrBtn").onclick=()=>toast((window.BK||{ids:["C3","C5"]}).ids.join(", ")+" 체크인했어요");
   document.getElementById("cancelBtn").onclick=()=>toast("예약을 취소했어요");
 })();
 </script>
@@ -312,12 +311,12 @@ button.chip[aria-pressed="true"] b{color:#fff}
   <div class="topbar"><span class="h2">예약 취소</span></div>
   <div style="padding:20px;display:flex;flex-direction:column;gap:20px">
     <div style="padding-top:20px"><p style="margin:0;font-size:28px;font-weight:800;line-height:1.3">예약이<br>자동 취소됐어요</p><p class="body" style="margin:8px 0 0;color:var(--sub)">예약하고 10분 안에 테이블 QR을 스캔하지 않아서 취소됐어요.</p></div>
-    <div class="card" style="display:flex;flex-direction:column;gap:10px"><p class="small" style="margin:0">취소된 예약</p><div class="kv"><span>테이블</span><b>C3, C5 4인석</b></div><div class="kv"><span>예약 시각</span><b class="num">12:05</b></div><div class="kv"><span>취소 시각</span><b class="num">12:15</b></div></div>
+    <div class="card" style="display:flex;flex-direction:column;gap:10px"><p class="small" style="margin:0">취소된 예약</p><div class="kv"><span>테이블</span><b data-bk="name">C3, C5 4인석</b></div><div class="kv"><span>예약 시각</span><b class="num">12:05</b></div><div class="kv"><span>취소 시각</span><b class="num">12:15</b></div></div>
   </div>
   <div class="bottom"><a class="btn" href="#2.0">현황으로 돌아가기</a><a class="btn sub" href="#3.0">다시 예약하기</a></div>
 </section>
 <section class="screen" id="4.0" data-name="이용 중과 종료 알림">
-  <div class="topbar"><span class="h2">이용 중 C3, C5</span><span class="small num">체크인 12:15</span></div>
+  <div class="topbar"><span class="h2" data-bk="inuse">이용 중 C3, C5</span><span class="small num">체크인 12:15</span></div>
   <div style="padding:20px;display:flex;flex-direction:column;gap:16px">
     <div class="card" style="display:flex;flex-direction:column;gap:10px"><p class="small" style="margin:0">남은 이용 시간</p><p class="big num" style="font-size:48px">11:20</p><div class="bar"><i style="width:81%"></i></div><p class="small num" style="margin:0">마감 13:15, 최대 60분</p></div>
     <div class="alert" style="display:flex;flex-direction:column;gap:6px"><p style="margin:0;font-weight:700;color:var(--accent-t)">마감 10분 전 알림 예시</p><p style="margin:0;font-size:15px">13:05에 알림이 떠요. "이용 마감 10분 전이에요. 정리를 시작해 주세요."</p><div style="display:flex;gap:8px;margin-top:4px"><button type="button" class="btn sub" style="flex:1" id="alOk">확인</button><button type="button" class="btn sub" style="flex:1" id="alSoon">곧 나갈게요</button></div></div>
@@ -331,12 +330,12 @@ document.getElementById("alOk").onclick=()=>toast("알림을 확인했어요");
 document.getElementById("alSoon").onclick=()=>toast("기다리는 사람에게 곧 비운다고 알렸어요");
 </script>
 <section class="screen" id="4.2" data-name="퇴실 완료 팝업" style="position:relative">
-  <div class="topbar"><span class="h2">이용 중 C3, C5</span><span class="small num">체크인 12:15</span></div>
+  <div class="topbar"><span class="h2" data-bk="inuse">이용 중 C3, C5</span><span class="small num">체크인 12:15</span></div>
   <div class="fake"><i style="height:150px"></i><i style="height:110px"></i><i style="height:48px"></i></div>
   <div class="dim"><div class="pop" role="dialog" aria-label="퇴실 완료 안내">
     <div class="icon" style="background:var(--ok-bg);border:2px solid var(--ok)"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
     <p style="margin:0;font-size:24px;font-weight:800;line-height:1.3">정리해 주셔서<br>감사합니다</p>
-    <p class="body" style="margin:0;color:var(--sub)">C3, C5 테이블이 빈자리로 바뀌었어요. 깨끗한 자리 덕분에 다음 사람도 기분 좋게 먹을 수 있어요.</p>
+    <p class="body" style="margin:0;color:var(--sub)"><span data-bk="ids">C3, C5</span> 테이블이 빈자리로 바뀌었어요. 깨끗한 자리 덕분에 다음 사람도 기분 좋게 먹을 수 있어요.</p>
     <div style="width:100%;background:var(--bg2);border-radius:var(--radius);padding:10px 12px;font-size:13px;color:var(--sub);text-align:left">쓰레기는 분리해서 버리고, 옮긴 의자는 제자리에 두었는지 한 번 더 확인해 주세요.</div>
     <a class="btn" href="#2.0">확인하고 현황으로</a>
   </div></div>
@@ -384,6 +383,15 @@ document.getElementById("refresh").onclick=()=>{toast("다시 찾고 있어요")
   document.querySelectorAll(".phIn").forEach(inp=>inp.onchange=()=>{[...inp.files].forEach(f=>{if(n>=3){toast("사진은 3장까지 올릴 수 있어요");return}n++;const d=document.createElement("div");d.style.cssText="position:relative;width:88px;height:88px;border-radius:12px;overflow:hidden;background:var(--bg2)";const img=document.createElement("img");img.alt="첨부한 사진";img.style.cssText="width:100%;height:100%;object-fit:cover";img.src=URL.createObjectURL(f);const x=document.createElement("button");x.type="button";x.setAttribute("aria-label","사진 삭제");x.textContent="×";x.style.cssText="position:absolute;top:4px;right:4px;width:28px;height:28px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:16px;cursor:pointer";x.onclick=()=>{d.remove();n--};d.append(img,x);th.appendChild(d)});inp.value="";if(n)toast("사진을 올렸어요")});
   document.getElementById("rpSend").onclick=()=>{if(!box.querySelector('[aria-pressed="true"]')){help.className="help err";help.textContent="불편한 항목을 하나 이상 고르세요";toast("항목을 골라 주세요");return}toast("신고했어요. 고마워요");setTimeout(()=>{location.hash="#4.0"},700)};
 })();
+</script>
+<script>
+window.setBooking=function(ids,name,people){
+  window.BK={ids,name,people};
+  const two=ids.length>1,set=(k,v)=>document.querySelectorAll('[data-bk="'+k+'"]').forEach(e=>e.textContent=v);
+  set("count","내 자리 "+ids.length+"개");set("name",name);set("info",people+", 최대 60분, 수덕전 2층");
+  set("qr",two?ids[0]+"나 "+ids[1]+" 중 한 테이블의 QR만 스캔하세요. 두 테이블이 함께 체크인돼요.":ids[0]+" 테이블에 붙은 QR을 스캔하세요.");
+  set("map",ids.join(", ")+" 위치 안내 지도");set("inuse","이용 중 "+ids.join(", "));set("ids",ids.join(", "));
+};
 </script>
 <!-- 화면 끝 -->
 </div>
