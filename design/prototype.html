@@ -342,7 +342,11 @@ button.chip[aria-pressed="true"] b{color:#fff}
       <p style="margin:0;display:flex;gap:10px;font-size:15px"><span class="chip" style="min-height:24px;padding:0 9px">1</span><span data-bk="qr">C3나 C5 중 한 테이블의 QR만 스캔하세요. 두 테이블이 함께 체크인돼요.</span></p>
       <p style="margin:0;display:flex;gap:10px;font-size:15px"><span class="chip" style="min-height:24px;padding:0 9px">2</span>체크인하면 이용 시간이 시작돼요.</p>
     </div>
-    <div class="ph" style="height:96px" data-bk="map">C3, C5 위치 안내 지도</div>
+    <div class="card" style="background:var(--bg2);display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><p class="h2" id="bkMapTitle" style="margin:0">내 자리 위치</p><span class="legend"><span><i class="sw" style="background:var(--main)"></i>내 자리</span></span></div>
+      <p class="small" id="bkMapWhere" style="margin:0"></p>
+      <div id="bkMapScroll" style="overflow:auto;max-height:240px;-webkit-overflow-scrolling:touch;padding:4px"><div id="bkMap" style="display:grid;gap:6px;width:max-content;margin:0 auto"></div></div>
+    </div>
   </div>
   <div class="bottom"><a class="btn" href="#4.0" id="qrBtn">테이블 QR 스캔하기</a><a class="btn sub" href="#2.0" id="cancelBtn">예약 취소</a></div>
 </section>
@@ -433,13 +437,28 @@ document.getElementById("refresh").onclick=()=>{toast("다시 찾고 있어요")
 })();
 </script>
 <script>
+function drawBkMap(ids){
+  const L={A:{n:28,cols:1,name:"창가 1인석",where:"왼편 창가 한 줄"},B:{n:12,cols:3,name:"2인석",where:"4인석 뒤, 3열 4행"},C:{n:21,cols:7,name:"4인석",where:"맨 앞쪽, 7열 3행"},D:{n:7,cols:4,name:"3인석",where:"뒤쪽 중앙에서 오른편"},F:{n:2,cols:1,name:"좌식",where:"뒤쪽 왼편"}};
+  const p=ids[0][0],m=L[p];if(!m)return;
+  document.getElementById("bkMapTitle").textContent=m.name+" 배치에서 내 자리";
+  document.getElementById("bkMapWhere").textContent="위치: "+m.where+". 파란 칸이 예약한 자리예요.";
+  const g=document.getElementById("bkMap");g.innerHTML="";g.style.gridTemplateColumns="repeat("+m.cols+",40px)";let mine=null;
+  for(let i=1;i<=m.n;i++){const id=p+i,on=ids.includes(id),c=document.createElement("div");
+    c.textContent=id;c.setAttribute("aria-label",id+(on?" 내 자리":""));
+    c.style.cssText="height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;"+(on?"background:var(--main);color:#fff;outline:3px solid var(--main);outline-offset:2px":"background:#fff;color:var(--sub);border:1px solid var(--line)");
+    g.appendChild(c);if(on&&!mine)mine=c}
+  window._bkMine=mine;bkScroll();
+}
+function bkScroll(){const mine=window._bkMine;if(!mine)return;requestAnimationFrame(()=>{const sc=document.getElementById("bkMapScroll");if(!sc.clientHeight)return;sc.scrollTop=Math.max(0,mine.offsetTop-sc.offsetTop-sc.clientHeight/2);sc.scrollLeft=Math.max(0,mine.offsetLeft-sc.clientWidth/2)})}
+addEventListener("hashchange",()=>{if(location.hash==="#3.1")setTimeout(bkScroll,30)});
 window.setBooking=function(ids,name,people,min){
   window.BK={ids,name,people};
   const two=ids.length>1,set=(k,v)=>document.querySelectorAll('[data-bk="'+k+'"]').forEach(e=>e.textContent=v);
   set("count","내 자리 "+ids.length+"개");set("name",name);set("info",people+", 최대 "+(min||60)+"분, 수덕전 2층");
   set("qr",two?ids[0]+"나 "+ids[1]+" 중 한 테이블의 QR만 스캔하세요. 두 테이블이 함께 체크인돼요.":ids[0]+" 테이블에 붙은 QR을 스캔하세요.");
-  set("map",ids.join(", ")+" 위치 안내 지도");set("inuse","이용 중 "+ids.join(", "));set("ids",ids.join(", "));
+  drawBkMap(ids);set("inuse","이용 중 "+ids.join(", "));set("ids",ids.join(", "));
 };
+drawBkMap(["C3","C5"]);
 </script>
 <!-- 화면 끝 -->
 </div>
